@@ -2,6 +2,7 @@ def tick(args)
 	init(args) unless args.state.ready == true
 	game_step(args)
 	update_display(args)
+	pretty_button(args)
 end
 
 def init(args)
@@ -44,4 +45,26 @@ end
 def make_button(x, y, w, h, text, function, target, args=$gtk.args)
 	
 	
+end
+
+def pretty_button(args)
+	x = 600
+	y = 300
+	h = 40
+	w = 80
+	out = args.outputs
+	
+	out.borders << [x, y, w, h]
+	out.borders << [x, y+1, w-1, h-1]
+	out.borders << [x+2, y+2, w-4, h-4]
+	out.labels << [x + w * 0.2, y + h * 0.7, "Build"]
+	
+	check_mouse(x, y, w, h, args.inputs.mouse, args) if args.inputs.mouse.click
+
+end
+
+def check_mouse(x, y, w, h, mouse, args)
+	if mouse.x >= x && mouse.x <= x+w && mouse.y > y && mouse.y <= y+h
+		build_mine(args)
+	end
 end

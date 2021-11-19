@@ -15,7 +15,7 @@ def init(args)
 	
 	prepare_ui(args)
 	
-	args.state.buttons[:mine] = make_button(600, 300, 80, 40, "Build", nil, :mine_button, args)
+	args.state.buttons[:mine] = make_button(600, 300, 80, 40, "Build", :build_mine, :mine_button, args)
 	
 	args.state.ready = true
 	$gtk.notify!("Init complete!")
@@ -56,7 +56,7 @@ def make_button(x, y, w, h, text, function, target, args=$gtk.args)
 	args.render_target(target).borders << [x, y+1, w-1, h-1]
 	args.render_target(target).borders << [x+2, y+2, w-4, h-4]
 	args.render_target(target).labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
-	[out_x, out_y, w, h, target]
+	{x: out_x, y: out_y, w: w, h: h, path: target, function: method(function)}
 end
 
 def pretty_button(args)
@@ -82,7 +82,10 @@ def pretty_button(args)
 end
 
 def check_mouse(x, y, w, h, mouse, args)
-	if mouse.x >= x && mouse.x <= x+w && mouse.y > y && mouse.y <= y+h
-		build_mine(args)
+	# if mouse.x >= x && mouse.x <= x+w && mouse.y > y && mouse.y <= y+h
+		# build_mine(args)
+	# end
+	if mouse.inside_rect?(args.state.buttons[:mine])
+		args.state.buttons[:mine][:function].call(args)
 	end
 end

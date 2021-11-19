@@ -52,12 +52,16 @@ def pretty_button(args)
 	y = 300
 	h = 40
 	w = 80
+	text = "Build"
+
+	text_w, text_h = $gtk.calcstringbox(text)
+
 	out = args.outputs
 	
 	out.borders << [x, y, w, h]
 	out.borders << [x, y+1, w-1, h-1]
 	out.borders << [x+2, y+2, w-4, h-4]
-	out.labels << [x + w * 0.2, y + h * 0.7, "Build"]
+	out.labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
 	
 	check_mouse(x, y, w, h, args.inputs.mouse, args) if args.inputs.mouse.click
 

@@ -15,6 +15,7 @@ def init(args)
 	
 	prepare_ui(args)
 	
+	args.state.buttons = {}
 	args.state.buttons[:mine] = make_button(600, 300, 80, 40, "Build", :build_mine, :mine_button, args)
 	
 	args.state.ready = true
@@ -75,17 +76,17 @@ def pretty_button(args)
 	# out.borders << [x+2, y+2, w-4, h-4]
 	# out.labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
 	
-	check_mouse(x, y, w, h, args.inputs.mouse, args) if args.inputs.mouse.click
+	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
 	
 	args.outputs.sprites << args.state.buttons[:mine]
 
 end
 
-def check_mouse(x, y, w, h, mouse, args)
-	# if mouse.x >= x && mouse.x <= x+w && mouse.y > y && mouse.y <= y+h
-		# build_mine(args)
-	# end
-	if mouse.inside_rect?(args.state.buttons[:mine])
-		args.state.buttons[:mine][:function].call(args)
+def check_mouse(mouse, args)
+	args.state.buttons.each do |button_name, button|
+		if mouse.inside_rect?(button)
+			button[:function].call(args)
+			return
+		end
 	end
 end

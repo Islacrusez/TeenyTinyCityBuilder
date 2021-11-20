@@ -6,20 +6,22 @@ def tick(args)
 end
 
 def init(args)
-	args.state.production = {}
-	args.state.production[:ore] = 0
-	args.state.inventory = {}	
-	args.state.inventory[:ore] = 20
-	args.state.buildings = {}
-	args.state.buildings[:mine] = 0
+	args.state.production = Hash.new(0)
+	args.state.inventory = Hash.new(0)	
+	args.state.buildings = Hash.new(0)
 	
 	args.state.blueprints.structures = {}
 	args.state.blueprints.structures[:iron_mine] =
 		{	name:		"Iron Ore Mine",
-			cost:		{ore: 20},
+			cost:		{wood: 20},
 			production:	{ore: 5}
 		}
-	
+	args.state.blueprints.structures[:woodcutter] =
+		{	name:		"Woodcutter",
+			cost:		{ore: 0},
+			production:	{wood: 10}
+		}
+		
 	
 	args.state.buttons = []
 	args.state.buttons << make_button(600, 300, 80, 40, "Build", :build_mine, :mine_button, args)

@@ -13,6 +13,14 @@ def init(args)
 	args.state.buildings = {}
 	args.state.buildings[:mine] = 0
 	
+	args.state.blueprints.structures = {}
+	args.state.blueprints.structures[:iron_mine] =
+		{	name:		"Iron Ore Mine",
+			cost:		{ore: 20},
+			production:	{ore: 5}
+		}
+	
+	
 	args.state.buttons = []
 	args.state.buttons << make_button(600, 300, 80, 40, "Build", :build_mine, :mine_button, args)
 	args.state.buttons << make_button(600, 400, 80, 40, "Mine", :get_ore, :ore_button, args)
@@ -43,6 +51,19 @@ def build_mine(args)
 	args.state.production[:ore] += 5	
 end
 
+def build(building, args=$gtk.args)
+	structure = args.state.blueprints.structures[building]
+	structure[:cost].each do |material, price|
+		return if args.state.inventory[material] < price
+	end
+	structure[:cost].each do |material, price|
+		args.state.inventory[material] -= price
+	end
+	structure[:production].each do |material, gain|
+		args.state.production[material] += gain
+	end
+end
+
 def get_ore(args)
 	args.state.inventory[:ore] += 1
 end
@@ -70,7 +91,7 @@ def check_mouse(mouse, args)
 	args.state.buttons.each do |button|
 		if mouse.inside_rect?(button)
 			button[:function].call(args)
-			return
+			return # ends method, use break if further execution is desired
 		end
 	end
 end

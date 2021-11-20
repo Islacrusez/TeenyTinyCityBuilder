@@ -15,8 +15,9 @@ def init(args)
 	
 	prepare_ui(args)
 	
-	args.state.buttons = {}
-	args.state.buttons[:mine] = make_button(600, 300, 80, 40, "Build", :build_mine, :mine_button, args)
+	args.state.buttons = []
+	args.state.buttons << make_button(600, 300, 80, 40, "Build", :build_mine, :mine_button, args)
+	args.state.buttons << make_button(600, 400, 80, 40, "Mine", :get_ore, :ore_button, args)
 	
 	args.state.ready = true
 	$gtk.notify!("Init complete!")
@@ -41,6 +42,10 @@ def build_mine(args)
 	args.state.production[:ore] += 5	
 end
 
+def get_ore(args)
+	args.state.inventory[:ore] += 1
+end
+
 def update_display(args)
 	args.state.ui[:ore][2] = "Ore: #{args.state.inventory[:ore]}"
 end
@@ -61,29 +66,16 @@ def make_button(x, y, w, h, text, function, target, args=$gtk.args)
 end
 
 def pretty_button(args)
-	x = 600
-	y = 300
-	h = 40
-	w = 80
-	# text = "Build"
-
-	# text_w, text_h = $gtk.calcstringbox(text)
-
-	# out = args.outputs
-	
-	# out.borders << [x, y, w, h]
-	# out.borders << [x, y+1, w-1, h-1]
-	# out.borders << [x+2, y+2, w-4, h-4]
-	# out.labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
-	
 	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
 	
-	args.outputs.sprites << args.state.buttons[:mine]
+	#args.outputs.sprites << args.state.buttons[:mine]
+	#args.outputs.sprites << args.state.buttons[:ore]
+	args.outputs.sprites << args.state.buttons
 
 end
 
 def check_mouse(mouse, args)
-	args.state.buttons.each do |button_name, button|
+	args.state.buttons.each do |button|
 		if mouse.inside_rect?(button)
 			button[:function].call(args)
 			return

@@ -43,7 +43,7 @@ def prepare_ui(args)
 	args.outputs.static_labels << args.state.ui[:ore]
 	args.outputs.static_sprites << args.state.buttons
 
-	args.outputs.static_sprites << make_ui_box(:resources_ui, "Resources", 200, 660, args).merge({x: 1060, y: 20})
+	args.outputs.static_sprites << make_ui_box(:resources_ui, "Resources", 300, 660, args).merge({x: 960, y: 20})
 	#args.outputs.static_sprites << make_ui_box(:production_ui, "Production", 200, 660, args).merge({x: 1060, y: 20})
 	
 end
@@ -53,7 +53,9 @@ def prepare_resource_counters(args)
 	args.state.inventory.each do |resource, stock|
 		sign = SIGNS[args.state.production[resource].sign]
 		production = sign + " " + args.state.production[resource].abs.to_s
-		args.state.ui[resource] = [1080, 650 - row*30, "#{resource} : #{args.state.inventory[resource]} (#{production})"]
+		stock = args.state.inventory[resource]
+		stock = stock.idiv(1000).to_s + "k" if stock > 10000
+		args.state.ui[resource] = [980, 650 - row*30, "#{resource.capitalize} : #{stock} (#{production})"]
 		args.outputs.labels << args.state.ui[resource]
 		row += 1
 	end

@@ -66,14 +66,14 @@ def prepare_ui(args)
 	
 	woodcutter = args.render_target(:woodcutter_ui_box)
 	woodcutter.height = 130
-	woodcutter.width = 400
+	woodcutter.width = 420
 	
-	woodcutter.sprites << make_ui_box(:build_woodcutter, "Woodcutter", 400, 130, args)
+	woodcutter.sprites << make_ui_box(:build_woodcutter, "Woodcutter", 420, 130, args)
 	#woodcutter.labels << [10, 80, args.state.blueprints.structures[:woodcutter][:description], -2]
-	woodcutter.labels << textbox(args.state.blueprints.structures[:woodcutter][:description], 10, 108, 380, size=-2, font="default")
-	woodcutter.lines << [10, 70, 390, 70]
-	woodcutter.sprites << make_ui_box(:cost_woodcutter, ["Cost", -3, "default"], 140, 55, args).merge({x: 100, y: 10})
-	woodcutter.sprites << make_ui_box(:production_woodcutter, ["Production", -3, "default"], 140, 55, args).merge({x: 100 +140 +10 , y: 10})
+	woodcutter.labels << textbox(args.state.blueprints.structures[:woodcutter][:description], 10, 108, 390, size=-2, font="default")
+	woodcutter.lines << [10, 70, 410, 70]
+	woodcutter.sprites << make_ui_box(:cost_woodcutter, ["Cost", -3, "default"], 150, 55, args).merge({x: 100, y: 10})
+	woodcutter.sprites << make_ui_box(:production_woodcutter, ["Production", -3, "default"], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
 	positions = [[105, 17 + 5 + 12 + 12],[105, 17 + 12],[],[]]
 	position = 0
 	args.state.blueprints.structures[:woodcutter][:cost].each do |resource, value|
@@ -81,14 +81,14 @@ def prepare_ui(args)
 		position += 1
 	end
 	
-	positions = [[255, 17 + 5 + 12 + 12],[255, 17 + 12],[],[]]
+	positions = [[265, 17 + 5 + 12 + 12],[265, 17 + 12],[],[]]
 	position = 0
 	args.state.blueprints.structures[:woodcutter][:production].each do |resource, value|
 		woodcutter.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
 		position += 1
 	end
 	
-	args.outputs.static_sprites << {x: 20, y: 500, w: 400, h: 130, path: :woodcutter_ui_box}
+	args.outputs.static_sprites << {x: 20, y: 500, w: 420, h: 130, path: :woodcutter_ui_box}
 	
 	args.outputs.static_sprites << args.state.buttons
 end

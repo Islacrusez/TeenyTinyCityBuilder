@@ -27,8 +27,12 @@ def init(args)
 	args.state.buttons << make_button(600, 300, 120, 40, "Build Mine", :build, :iron_mine, :mine_button, args)
 	args.state.buttons << make_button(600, 400, 180, 40, "Build Woodcutter", :build, :woodcutter, :woodcutter_button, args)
 
+	SIGNS = ["=", "▲", "▼"]
 	
 	prepare_ui(args)
+	
+	# UP = ▲
+	# DOWN = ▼
 	
 	args.state.ready = true
 	$gtk.notify!("Init complete!")
@@ -47,7 +51,9 @@ end
 def prepare_resource_counters(args)
 	row = 0
 	args.state.inventory.each do |resource, stock|
-		args.state.ui[resource] = [1080, 650 - row*30, "#{resource} : #{args.state.inventory[resource]} (#{args.state.production[resource]})"]
+		sign = SIGNS[args.state.production[resource].sign]
+		production = sign + " " + args.state.production[resource].abs.to_s
+		args.state.ui[resource] = [1080, 650 - row*30, "#{resource} : #{args.state.inventory[resource]} (#{production})"]
 		args.outputs.labels << args.state.ui[resource]
 		row += 1
 	end
@@ -57,6 +63,7 @@ def game_step(args)
 	return unless args.tick_count.mod(60) == 0
 	args.state.production.each do |resource, amount|
 		args.state.inventory[resource] += amount
+		args.state.inventory[resource] = 0 if args.state.inventory[resource].negative?
 	end
 end
 
@@ -74,7 +81,6 @@ def build(building, args=$gtk.args)
 end
 
 def update_display(args)
-	#args.state.ui[:ore][2] = "Ore: #{args.state.inventory[:ore]}"
 	prepare_resource_counters(args)
 end
 

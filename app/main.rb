@@ -18,14 +18,15 @@ def init(args)
 		}
 	args.state.blueprints.structures[:woodcutter] =
 		{	name:		"Woodcutter",
-			cost:		{ore: 0},
+			cost:		{wood: 0},
 			production:	{wood: 10}
 		}
 		
 	
 	args.state.buttons = []
-	args.state.buttons << make_button(600, 300, 80, 40, "Build", :build_mine, :mine_button, args)
-	args.state.buttons << make_button(600, 400, 80, 40, "Mine", :get_ore, :ore_button, args)
+	args.state.buttons << make_button(600, 300, 120, 40, "Build Mine", :build, :iron_mine, :mine_button, args)
+	args.state.buttons << make_button(600, 400, 180, 40, "Build Woodcutter", :build, :woodcutter, :woodcutter_button, args)
+
 	
 	prepare_ui(args)
 	
@@ -46,13 +47,6 @@ def game_step(args)
 	end
 end
 
-def build_mine(args)
-	return if args.state.inventory[:ore] < 20
-	args.state.inventory[:ore] -= 20
-	args.state.buildings[:mine] += 1
-	args.state.production[:ore] += 5	
-end
-
 def build(building, args=$gtk.args)
 	structure = args.state.blueprints.structures[building]
 	structure[:cost].each do |material, price|
@@ -66,15 +60,11 @@ def build(building, args=$gtk.args)
 	end
 end
 
-def get_ore(args)
-	args.state.inventory[:ore] += 1
-end
-
 def update_display(args)
 	args.state.ui[:ore][2] = "Ore: #{args.state.inventory[:ore]}"
 end
 
-def make_button(x, y, w, h, text, function, target, args=$gtk.args)
+def make_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)
 	text_w, text_h = $gtk.calcstringbox(text)
 	args.render_target(target).height = h
 	args.render_target(target).width = w
@@ -86,13 +76,13 @@ def make_button(x, y, w, h, text, function, target, args=$gtk.args)
 	args.render_target(target).borders << [x, y+1, w-1, h-1]
 	args.render_target(target).borders << [x+2, y+2, w-4, h-4]
 	args.render_target(target).labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
-	{x: out_x, y: out_y, w: w, h: h, path: target, function: method(function)}
+	{x: out_x, y: out_y, w: w, h: h, path: target, arguments: arguments, function: method(function)}
 end
 
 def check_mouse(mouse, args)
 	args.state.buttons.each do |button|
 		if mouse.inside_rect?(button)
-			button[:function].call(args)
+			button[:function].call(button[:arguments], args)
 			return # ends method, use break if further execution is desired
 		end
 	end

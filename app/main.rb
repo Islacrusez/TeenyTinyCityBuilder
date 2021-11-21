@@ -35,9 +35,22 @@ def init(args)
 end
 
 def prepare_ui(args)
-	args.state.ui[:ore] = [300, 300, "Ore: #{args.state.inventory[:ore]}"]
+	#args.state.ui[:ore] = [300, 300, "Ore: #{args.state.inventory[:ore]}"]
 	args.outputs.static_labels << args.state.ui[:ore]
 	args.outputs.static_sprites << args.state.buttons
+
+	args.outputs.static_sprites << make_ui_box(:resources_ui, "Resources", 200, 660, args).merge({x: 1060, y: 20})
+	#args.outputs.static_sprites << make_ui_box(:production_ui, "Production", 200, 660, args).merge({x: 1060, y: 20})
+	
+end
+
+def prepare_resource_counters(args)
+	row = 0
+	args.state.inventory.each do |resource, stock|
+		args.state.ui[resource] = [1080, 650 - row*30, "#{resource} : #{args.state.inventory[resource]} (#{args.state.production[resource]})"]
+		args.outputs.labels << args.state.ui[resource]
+		row += 1
+	end
 end
 
 def game_step(args)
@@ -61,7 +74,8 @@ def build(building, args=$gtk.args)
 end
 
 def update_display(args)
-	args.state.ui[:ore][2] = "Ore: #{args.state.inventory[:ore]}"
+	#args.state.ui[:ore][2] = "Ore: #{args.state.inventory[:ore]}"
+	prepare_resource_counters(args)
 end
 
 def make_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)
@@ -86,4 +100,16 @@ def check_mouse(mouse, args)
 			return # ends method, use break if further execution is desired
 		end
 	end
+end
+
+def make_ui_box(target, name, w, h, args)
+	text_width, text_height = *($gtk.calcstringbox(*name))
+	args.outputs[target].primitives << [0, 0, 1280, 720, *$gtk.background_color].solids	
+	args.outputs[target].primitives << [0, 0, w, h, 0, 0, 0].borders
+	args.outputs[target].primitives << [10, h - text_height / 2, text_width + 10, text_height, *$gtk.background_color].solids
+	text, size, font = *name
+	args.outputs[target].primitives << [15, h + text_height / 2, text, size, 0, 0, 0, 0, 255, font].labels
+	args.outputs[target].height = h + text_height / 2
+	args.outputs[target].width = w
+	{w: w, h: h + text_height / 2, path: target}
 end

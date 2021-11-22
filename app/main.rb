@@ -42,7 +42,7 @@ def init(args)
 	args.state.buttons << make_button(600, 300, 120, 40, "Build Mine", :build, :iron_mine, :mine_button, args)
 	args.state.buttons << make_button(600, 400, 180, 40, "Build Woodcutter", :build, :woodcutter, :woodcutter_button, args)
 
-	args.state.buttons << make_button(30, 510, 80, 50, "Build", :build, :woodcutter, :build_button, args)
+	args.state.buttons << make_button(20, 520 + 60, 80, 50, "Build", :build, :woodcutter, :build_button, args)
 
 
 	SIGNS = ["=", "▲", "▼"]
@@ -64,34 +64,72 @@ def prepare_ui(args)
 		
 	# end
 	
-	woodcutter = args.render_target(:woodcutter_ui_box)
-	woodcutter.height = 130
-	woodcutter.width = 420
+	# woodcutter = args.render_target(:woodcutter_ui_box)
+	# woodcutter.height = 130
+	# woodcutter.width = 420
 	
-	woodcutter.sprites << make_ui_box(:build_woodcutter, "Woodcutter", 420, 130, args)
-	#woodcutter.labels << [10, 80, args.state.blueprints.structures[:woodcutter][:description], -2]
-	woodcutter.labels << textbox(args.state.blueprints.structures[:woodcutter][:description], 10, 108, 390, size=-2, font="default")
-	woodcutter.lines << [10, 70, 410, 70]
-	woodcutter.sprites << make_ui_box(:cost_woodcutter, ["Cost", -3, "default"], 150, 55, args).merge({x: 100, y: 10})
-	woodcutter.sprites << make_ui_box(:production_woodcutter, ["Production", -3, "default"], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
+	# woodcutter.sprites << make_ui_box(:build_woodcutter, "Woodcutter", 420, 130, args)
+	# #woodcutter.labels << [10, 80, args.state.blueprints.structures[:woodcutter][:description], -2]
+	# woodcutter.labels << textbox(args.state.blueprints.structures[:woodcutter][:description], 10, 108, 390, size=-2, font="default")
+	# woodcutter.lines << [10, 70, 410, 70]
+	# woodcutter.sprites << make_ui_box(:cost_woodcutter, ["Cost", -3, "default"], 150, 55, args).merge({x: 100, y: 10})
+	# woodcutter.sprites << make_ui_box(:production_woodcutter, ["Production", -3, "default"], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
+	# positions = [[105, 17 + 5 + 12 + 12],[105, 17 + 12],[],[]]
+	# position = 0
+	# args.state.blueprints.structures[:woodcutter][:cost].each do |resource, value|
+		# woodcutter.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
+		# position += 1
+	# end
+	
+	# positions = [[265, 17 + 5 + 12 + 12],[265, 17 + 12],[],[]]
+	# position = 0
+	# args.state.blueprints.structures[:woodcutter][:production].each do |resource, value|
+		# woodcutter.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
+		# position += 1
+	# end
+	
+	prepare_build_boxes(:woodcutter, args)
+	#args.outputs.static_sprites << {x: 10, y: 10, w: 420, h: 130, path: :woodcutter_ui_box}
+	args.outputs.static_sprites << {x: 10, y: 130+20, w: 420, h: 130, path: :woodcutter_ui_box}
+	args.outputs.static_sprites << {x: 10, y: 260+30, w: 420, h: 130, path: :woodcutter_ui_box}
+	args.outputs.static_sprites << {x: 10, y: 390+40, w: 420, h: 130, path: :woodcutter_ui_box}
+	args.outputs.static_sprites << {x: 10, y: 520+50, w: 420, h: 130, path: :woodcutter_ui_box}
+	
+	
+	
+	args.outputs.static_sprites << args.state.buttons
+end
+
+def prepare_build_boxes(building, args) # key, args
+	box = args.render_target(building.to_s + "_ui_box")
+	box.height = 130
+	box.width = 420
+	
+	details = args.state.blueprints.structures[building]
+	
+	box.sprites << make_ui_box(("build_" + building.to_s).to_sym, details[:name], 420, 130, args)
+	box.labels << textbox(details[:description], 10, 108, 390, size=-2, font="default")
+	box.lines << [10, 70, 410, 70]
+	box.sprites << make_ui_box(("cost_"+building.to_s).to_sym, ["Cost", -3, "default"], 150, 55, args).merge({x: 100, y: 10})
+	box.sprites << make_ui_box(("production_"+building.to_s), ["Production", -3, "default"], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
 	positions = [[105, 17 + 5 + 12 + 12],[105, 17 + 12],[],[]]
 	position = 0
-	args.state.blueprints.structures[:woodcutter][:cost].each do |resource, value|
-		woodcutter.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
+	details[:cost].each do |resource, value|
+		box.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
 		position += 1
 	end
 	
 	positions = [[265, 17 + 5 + 12 + 12],[265, 17 + 12],[],[]]
 	position = 0
-	args.state.blueprints.structures[:woodcutter][:production].each do |resource, value|
-		woodcutter.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
+	details[:production].each do |resource, value|
+		box.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
 		position += 1
 	end
 	
-	args.outputs.static_sprites << {x: 20, y: 500, w: 420, h: 130, path: :woodcutter_ui_box}
-	
-	args.outputs.static_sprites << args.state.buttons
+	args.outputs.static_sprites << {x: 10, y: 10, w: 420, h: 130, path: :woodcutter_ui_box}
 end
+
+
 
 def prepare_resource_counters(args)
 	row = 0

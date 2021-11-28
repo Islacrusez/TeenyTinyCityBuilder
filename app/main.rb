@@ -21,7 +21,7 @@ def tick(args)
 			description: "Mining tunnels through deep into rock, producing iron ore"
 		}
 
-	dialog_box(args)
+	dialog_box(:iron_mine, args)
 	args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
 	args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
@@ -38,7 +38,7 @@ def tick(args)
 	## Main Dialog for Building Card
 	
 	#args.outputs.borders << args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) # Back Button
-	args.outputs.borders << args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build Button
+	#args.outputs.borders << args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build Button
 	#args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) # Dividing line
 	
 	args.outputs.borders << args.layout.rect(row: 7.25, col: 8, w: 7, h: 1) # Title
@@ -50,15 +50,15 @@ def tick(args)
 	#args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
 	#						text: LEFT, size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
 
-	text_loc = args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build
-	args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
-							text: "Build", size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
+	# text_loc = args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build
+	# args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
+							# text: "Build", size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
 							
 	#args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 1)
-	text_loc = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 1) # Description
-	text_box = textbox("Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore for refinement into iron.",
-						text_loc[:x], text_loc[:center_y], text_loc[:w], size=-2, font="default").each{|t| t.merge!({vertical_alignment_enum: 0})}
-	args.outputs.labels << text_box
+	#text_loc = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 1) # Description
+	#text_box = textbox("Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore for refinement into iron.",
+	#					text_loc[:x], text_loc[:center_y], text_loc[:w], size=-2, font="default").each{|t| t.merge!({vertical_alignment_enum: 0})}
+	#args.outputs.labels << text_box
 	
 	#args.outputs.borders << args.layout.rect(row: 10, col: 6.25, w: 3, h: 1.75) # costs
 	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25) # costs
@@ -88,7 +88,7 @@ def tick(args)
 	add_comma = false
 	production_hash.each do |res, val|
 		production_label += "," if add_comma
-		production_label += res.to_s.capitalize.gsub("_", " ") + " " + UP + val.to_s
+		production_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + UP
 		add_comma = true
 	end	
 	
@@ -97,7 +97,7 @@ def tick(args)
 	add_comma = false
 	consumption_hash.each do |res, val|
 		consumption_label += "," if add_comma
-		consumption_label += res.to_s.capitalize.gsub("_", " ") + " " + DOWN + val.to_s
+		consumption_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + DOWN
 		add_comma = true
 	end
 	
@@ -112,12 +112,31 @@ def tick(args)
 end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)
-	args.outputs.borders << args.layout.rect(row: 7, col: 6, w: 12, h: 5) # Main Dialog
-	args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) # Dividing line
-	back_button_layout = args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) # Back Button
+	details = args.state.blueprints.structures[building]
+	args.outputs.borders << args.layout.rect(row: 7, col: 6, w: 12, h: 5) 			# Main Dialog
+	args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) 	# Dividing line
+	
+	### Back Button ###
+	back_button_layout = args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) 			# Back Button
 	bbl = back_button_layout
 	back_button ||= make_button(bbl[:x], bbl[:y], bbl[:w], bbl[:h], LEFT, :select_building, nil, :back_button, args)
 	args.outputs.sprites << back_button
+	
+	### Build Button ###
+	
+	build_button_layout = args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build
+	bbl = build_button_layout
+	build_button ||= make_button(bbl[:x], bbl[:y], bbl[:w], bbl[:h], "Build", :build, building, :build_button, args)
+	args.outputs.sprites << build_button
+
+	
+	
+	### Description ###
+	text_loc = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 1) # Description
+	text_box = textbox(details[:description],
+						text_loc[:x], text_loc[:center_y], text_loc[:w], size=-2, font="default").each{|t| t.merge!({vertical_alignment_enum: 0})}
+	args.outputs.labels << text_box	
+	
 end
 
 def select_building(to_select)
@@ -327,7 +346,7 @@ end
 
 def textbox(string, x, y, w, size=0, font="default")    # <==<< # THIS METHOD TO BE USED
     text = string_to_lines(string, w, size, font)               # Accepts string and returns array of strings of desired length
-	return {x: x, y: y, text: text, size_enum: size, font: font} if text.is_a?(String)
+	return [{x: x, y: y, text: text, size_enum: size, font: font}] if text.is_a?(String)
     height_offset = get_height(string, size, font)              # Gets maximum height of any given line from the given string
     text.map!.with_index do |line, idx|                         # Converts array of string into array suitable for
         {x: x, y: y - idx * height_offset, text: line, size_enum: size, font: font}          # args.outputs.lables << textbox()

@@ -11,10 +11,21 @@
 	LEFT = "◀"
 
 def tick(args)
+	args.state.selection.building ||= :iron_mine
+	args.state.blueprints.structures = {}
+	args.state.blueprints.structures[:iron_mine] =
+		{	name:		"Iron Ore Mine",
+			cost:		{wood: 20},
+			production:	{ore: 5},
+			available: false,
+			description: "Mining tunnels through deep into rock, producing iron ore"
+		}
+
+	dialog_box(args)
 	args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
 	args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
-	args.outputs.borders << args.layout.rect(row: 7, col: 6, w: 12, h: 5) # Main Dialog
+	#args.outputs.borders << args.layout.rect(row: 7, col: 6, w: 12, h: 5) # Main Dialog
 	args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 12) # Scene Control
 	
 	## Scene control buttons
@@ -26,18 +37,18 @@ def tick(args)
 	
 	## Main Dialog for Building Card
 	
-	args.outputs.borders << args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) # Back Button
+	#args.outputs.borders << args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) # Back Button
 	args.outputs.borders << args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build Button
-	args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) # Dividing line
+	#args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) # Dividing line
 	
 	args.outputs.borders << args.layout.rect(row: 7.25, col: 8, w: 7, h: 1) # Title
 	text_loc = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1)
 	args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
 							text: "Iron Ore Mine", size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
 	
-	text_loc = args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) # Back
-	args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
-							text: LEFT, size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
+	#text_loc = args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) # Back
+	#args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
+	#						text: LEFT, size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
 
 	text_loc = args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build
 	args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
@@ -98,6 +109,19 @@ def tick(args)
 	production_label = {text: production_label, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}
 	args.outputs.labels << production_label
 	
+end
+
+def dialog_box(building=args.state.selection.building, args=$gtk.args)
+	args.outputs.borders << args.layout.rect(row: 7, col: 6, w: 12, h: 5) # Main Dialog
+	args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) # Dividing line
+	back_button_layout = args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) # Back Button
+	bbl = back_button_layout
+	back_button ||= make_button(bbl[:x], bbl[:y], bbl[:w], bbl[:h], LEFT, :select_building, nil, :back_button, args)
+	args.outputs.sprites << back_button
+end
+
+def select_building(to_select)
+	args.state.selection.building = to_select
 end
 
 def init(args)

@@ -11,6 +11,9 @@
 	LEFT = "◀"
 
 def tick(args)
+	args.state.production ||= Hash.new(0)
+	args.state.inventory ||= Hash.new(0)
+
 	args.state.selection.building ||= :iron_mine
 	args.state.blueprints.structures = {}
 	args.state.blueprints.structures[:iron_mine] =
@@ -30,7 +33,10 @@ def tick(args)
 			description: "A tall chimney furnace able to smelt iron ore into somewhat usable metal"
 		}
 
-	dialog_box(:smelter, args)
+	dialog_box(args.state.selection.building, args)
+	
+	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
+	
 	args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
 	args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
@@ -135,7 +141,9 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	build_button_layout = args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build
 	bbl = build_button_layout
 	build_button ||= make_button(bbl[:x], bbl[:y], bbl[:w], bbl[:h], "Build", :build, building, :build_button, args)
-	args.outputs.sprites << build_button
+	
+	args.state.buttons = [build_button]
+	args.outputs.sprites << args.state.buttons
 	
 	### Title ###
 	args.outputs.borders << args.layout.rect(row: 7.25, col: 8, w: 7, h: 1) # Title

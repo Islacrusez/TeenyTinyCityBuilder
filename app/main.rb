@@ -15,13 +15,22 @@ def tick(args)
 	args.state.blueprints.structures = {}
 	args.state.blueprints.structures[:iron_mine] =
 		{	name:		"Iron Ore Mine",
-			cost:		{wood: 20},
-			production:	{ore: 5},
+			cost:		{wood: 30, workers: 3},
+			production:	{ore: 1},
+			consumption: {wood: 3, tools: 1},
 			available: false,
-			description: "Mining tunnels through deep into rock, producing iron ore"
+			description: "Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore that requires refinement at a smelter."
+		}
+	args.state.blueprints.structures[:smelter] =
+		{	name:		"Smelter",
+			cost:		{stone: 60, wood: 20, workers: 2},
+			production:	{iron: 1},
+			consumption: {coal: 10, iron_ore: 10},
+			available: false,
+			description: "A tall chimney furnace able to smelt iron ore into somewhat usable metal"
 		}
 
-	dialog_box(:iron_mine, args)
+	dialog_box(:smelter, args)
 	args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
 	args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
@@ -41,10 +50,10 @@ def tick(args)
 	#args.outputs.borders << args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build Button
 	#args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) # Dividing line
 	
-	args.outputs.borders << args.layout.rect(row: 7.25, col: 8, w: 7, h: 1) # Title
-	text_loc = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1)
-	args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
-							text: "Iron Ore Mine", size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
+	# args.outputs.borders << args.layout.rect(row: 7.25, col: 8, w: 7, h: 1) # Title
+	# text_loc = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1)
+	# args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
+							# text: "Iron Ore Mine", size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
 	
 	#text_loc = args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) # Back
 	#args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
@@ -61,53 +70,53 @@ def tick(args)
 	#args.outputs.labels << text_box
 	
 	#args.outputs.borders << args.layout.rect(row: 10, col: 6.25, w: 3, h: 1.75) # costs
-	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25) # costs
-	cost_ui = make_ui_box(:cost_box, "Cost", cost_box[:w], cost_box[:h], args).merge({x: cost_box[:x], y: cost_box[:y]})
-	args.outputs.sprites << cost_ui
+	# cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25) # costs
+	# cost_ui = make_ui_box(:cost_box, "Cost", cost_box[:w], cost_box[:h], args).merge({x: cost_box[:x], y: cost_box[:y]})
+	# args.outputs.sprites << cost_ui
 	
 	#args.outputs.borders << args.layout.rect(row: 10, col: 9.25, w: 8.5, h: 1.75) # production and consumption
-	prod_box = args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25) # production and consumption
-	prod_ui = make_ui_box(:prod_box, "Production and Consumption", prod_box[:w], prod_box[:h], args).merge({x: prod_box[:x], y: prod_box[:y]})
-	args.outputs.sprites << prod_ui
+	# prod_box = args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25) # production and consumption
+	# prod_ui = make_ui_box(:prod_box, "Production and Consumption", prod_box[:w], prod_box[:h], args).merge({x: prod_box[:x], y: prod_box[:y]})
+	# args.outputs.sprites << prod_ui
 	
-	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25)
-	cost_hash = {wood: 30, workers: 3, tools: 3, charcoal: 1024}
-	costs_names = cost_hash.keys
-	costs_names.map!{|name| {text: name.to_s.capitalize+":", size_enum: -2, alignment_enum: 2}}
-	costs_values = cost_hash.values
-	costs_values.map!{|val| {text: val.to_s, size_enum: -2, alignment_enum: 0}}
+	# cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25)
+	# cost_hash = {wood: 30, workers: 3, tools: 3, charcoal: 1024}
+	# costs_names = cost_hash.keys
+	# costs_names.map!{|name| {text: name.to_s.capitalize+":", size_enum: -2, alignment_enum: 2}}
+	# costs_values = cost_hash.values
+	# costs_values.map!{|val| {text: val.to_s, size_enum: -2, alignment_enum: 0}}
 
 	
-	cost_labels = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_names)
-	args.outputs.labels << cost_labels
-	cost_labels2 = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_values)
-	args.outputs.labels << cost_labels2
+	# cost_labels = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_names)
+	# args.outputs.labels << cost_labels
+	# cost_labels2 = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_values)
+	# args.outputs.labels << cost_labels2
 	
-	production_hash = {iron_ore: 1}
-	production_label = "Production: "
-	add_comma = false
-	production_hash.each do |res, val|
-		production_label += "," if add_comma
-		production_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + UP
-		add_comma = true
-	end	
+	# production_hash = {iron_ore: 1}
+	# production_label = "Production: "
+	# add_comma = false
+	# production_hash.each do |res, val|
+		# production_label += "," if add_comma
+		# production_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + UP
+		# add_comma = true
+	# end	
 	
-	consumption_hash = {food: 5, tools: 1, wood: 3}
-	consumption_label = "Consumption: "
-	add_comma = false
-	consumption_hash.each do |res, val|
-		consumption_label += "," if add_comma
-		consumption_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + DOWN
-		add_comma = true
-	end
+	# consumption_hash = {food: 5, tools: 1, wood: 3}
+	# consumption_label = "Consumption: "
+	# add_comma = false
+	# consumption_hash.each do |res, val|
+		# consumption_label += "," if add_comma
+		# consumption_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + DOWN
+		# add_comma = true
+	# end
 	
-	con_label_box = args.layout.rect(row: 9.2, col: 9.5, w: 8.5, h: 2.25)
-	consumption_label = {text: consumption_label, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}
-	args.outputs.labels << consumption_label
+	# con_label_box = args.layout.rect(row: 9.2, col: 9.5, w: 8.5, h: 2.25)
+	# consumption_label = {text: consumption_label, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}
+	# args.outputs.labels << consumption_label
 	
-	prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
-	production_label = {text: production_label, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}
-	args.outputs.labels << production_label
+	# prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
+	# production_label = {text: production_label, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}
+	# args.outputs.labels << production_label
 	
 end
 
@@ -123,19 +132,71 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	args.outputs.sprites << back_button
 	
 	### Build Button ###
-	
 	build_button_layout = args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build
 	bbl = build_button_layout
 	build_button ||= make_button(bbl[:x], bbl[:y], bbl[:w], bbl[:h], "Build", :build, building, :build_button, args)
 	args.outputs.sprites << build_button
-
 	
+	### Title ###
+	args.outputs.borders << args.layout.rect(row: 7.25, col: 8, w: 7, h: 1) # Title
+	text_loc = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1)
+	args.outputs.labels << {x: text_loc[:center_x], y: text_loc[:center_y] - 1, 
+							text: details[:name], size_enum: 2, vertical_alignment_enum: 1, alignment_enum: 1}
 	
 	### Description ###
 	text_loc = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 1) # Description
 	text_box = textbox(details[:description],
 						text_loc[:x], text_loc[:center_y], text_loc[:w], size=-2, font="default").each{|t| t.merge!({vertical_alignment_enum: 0})}
 	args.outputs.labels << text_box	
+	
+	### Cost ###
+	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25) # costs
+	cost_ui = make_ui_box(:cost_box, "Cost", cost_box[:w], cost_box[:h], args).merge({x: cost_box[:x], y: cost_box[:y]})
+	args.outputs.sprites << cost_ui
+	
+	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25)
+	cost_hash = details[:cost]
+	costs_names = cost_hash.keys
+	costs_names.map!{|name| {text: name.to_s.capitalize+":", size_enum: -2, alignment_enum: 2}}
+	costs_values = cost_hash.values
+	costs_values.map!{|val| {text: val.to_s, size_enum: -2, alignment_enum: 0}}
+
+	
+	cost_labels = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_names)
+	args.outputs.labels << cost_labels
+	cost_labels2 = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_values)
+	args.outputs.labels << cost_labels2
+	
+	### Production / Consumption ###
+	prod_box = args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25) # production and consumption
+	prod_ui = make_ui_box(:prod_box, "Production and Consumption", prod_box[:w], prod_box[:h], args).merge({x: prod_box[:x], y: prod_box[:y]})
+	args.outputs.sprites << prod_ui
+	
+	production_hash = details[:production]
+	production_label = "Production: "
+	add_comma = false
+	production_hash.each do |res, val|
+		production_label += "," if add_comma
+		production_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + UP
+		add_comma = true
+	end	
+	
+	consumption_hash = details[:consumption]
+	consumption_label = "Consumption: "
+	add_comma = false
+	consumption_hash.each do |res, val|
+		consumption_label += "," if add_comma
+		consumption_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + DOWN
+		add_comma = true
+	end
+	
+	con_label_box = args.layout.rect(row: 9.2, col: 9.5, w: 8.5, h: 2.25)
+	consumption_label = {text: consumption_label, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}
+	args.outputs.labels << consumption_label
+	
+	prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
+	production_label = {text: production_label, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}
+	args.outputs.labels << production_label
 	
 end
 
@@ -181,7 +242,7 @@ def init(args)
 			cost:		{wood: 100},
 			production:	{charcoal: 2},
 			available: true,
-			description: "Scaffolding across a rockface where usable stone is cut from the cliff"
+			description: "A pile of wood covered in earth and sealed so as to burn down into charcoal. An inefficient way to gain coal-type fuel."
 		}
 		
 	

@@ -33,7 +33,7 @@ def tick(args)
 			description: "A tall chimney furnace able to smelt iron ore into somewhat usable metal"
 		}
 
-	dialog_box(args.state.selection.building, args)
+	dialog_box(args.state.selection.building, args)# if args.state.selection.building
 	
 	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
 	
@@ -52,20 +52,17 @@ def tick(args)
 end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)
+	raise unless building
 	details = args.state.blueprints.structures[building]
 	args.outputs.borders << args.layout.rect(row: 7, col: 6, w: 12, h: 5) 			# Main Dialog
 	args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) 	# Dividing line
 	
 	### Back Button ###
-	back_button_layout = args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1) 			# Back Button
-	bbl = back_button_layout
-	back_button ||= make_button(bbl[:x], bbl[:y], bbl[:w], bbl[:h], LEFT, :select_building, nil, :back_button, args)
+	back_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1), LEFT, :select_building, nil, :back_button, args)
 	args.outputs.sprites << back_button
 	
 	### Build Button ###
-	build_button_layout = args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1) # Build
-	bbl = build_button_layout
-	build_button ||= make_button(bbl[:x], bbl[:y], bbl[:w], bbl[:h], "Build", :build, building, :build_button, args)
+	build_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1), "Build", :build, building, :build_button, args)
 	
 	args.state.buttons = [build_button]
 	args.outputs.sprites << args.state.buttons
@@ -131,6 +128,10 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	production_label = {text: production_label, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}
 	args.outputs.labels << production_label
 	
+end
+
+def get_button_from_layout(layout, text, method, argument, target, args)
+	make_button(layout[:x], layout[:y], layout[:w], layout[:h], text, method, argument, target, args)
 end
 
 def select_building(to_select)

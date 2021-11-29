@@ -57,14 +57,11 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	args.outputs.borders << args.layout.rect(row: 7, col: 6, w: 12, h: 5) 			# Main Dialog
 	args.outputs.borders << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0) 	# Dividing line
 	
-	### Back Button ###
+	### Back and Build Buttons ###
 	back_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1), LEFT, :select_building, nil, :back_button, args)
-	args.outputs.sprites << back_button
-	
-	### Build Button ###
 	build_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1), "Build", :build, building, :build_button, args)
 	
-	args.state.buttons = [build_button]
+	args.state.buttons = [build_button, back_button]
 	args.outputs.sprites << args.state.buttons
 	
 	### Title ###
@@ -80,8 +77,9 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	args.outputs.labels << text_box	
 	
 	### Cost ###
-	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25) # costs
-	cost_ui = make_ui_box(:cost_box, "Cost", cost_box[:w], cost_box[:h], args).merge({x: cost_box[:x], y: cost_box[:y]})
+	#cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25) # costs
+	#cost_ui = make_ui_box(:cost_box, "Cost", cost_box[:w], cost_box[:h], args).merge({x: cost_box[:x], y: cost_box[:y]})
+	cost_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25), :cost_box, "Cost", args)
 	args.outputs.sprites << cost_ui
 	
 	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25)
@@ -98,8 +96,9 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	args.outputs.labels << cost_labels2
 	
 	### Production / Consumption ###
-	prod_box = args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25) # production and consumption
-	prod_ui = make_ui_box(:prod_box, "Production and Consumption", prod_box[:w], prod_box[:h], args).merge({x: prod_box[:x], y: prod_box[:y]})
+	#prod_box = args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25) # production and consumption
+	#prod_ui = make_ui_box(:prod_box, "Production and Consumption", prod_box[:w], prod_box[:h], args).merge({x: prod_box[:x], y: prod_box[:y]})
+	prod_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25), :prod_box, "Production and Consumption", args)
 	args.outputs.sprites << prod_ui
 	
 	production_hash = details[:production]
@@ -133,6 +132,11 @@ end
 def get_button_from_layout(layout, text, method, argument, target, args)
 	make_button(layout[:x], layout[:y], layout[:w], layout[:h], text, method, argument, target, args)
 end
+
+def get_ui_box_from_layout(layout, target, text, args)
+	make_ui_box(target, text, layout[:w], layout[:h], args).merge({x: layout[:x], y: layout[:y]})
+end
+
 
 def select_building(to_select)
 	args.state.selection.building = to_select

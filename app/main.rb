@@ -9,6 +9,11 @@
 	DOWN = "▼"
 	RIGHT = "▶"
 	LEFT = "◀"
+	
+	BORDER = {primitive_marker: :border}
+	SPRITE = {primitive_marker: :sprite}
+	LINE = {primitive_marker: :line}
+	LABEL = {primitive_marker: :label}
 
 def tick(args)
 	args.state.production ||= Hash.new(0)
@@ -59,28 +64,24 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	args.state.renderables.dialog = []
 	dialog = args.state.renderables.dialog
 	details = args.state.blueprints.structures[building]
-	border = {primitive_marker: :border}
-	sprite = {primitive_marker: :sprite}
-	line = {primitive_marker: :line}
-	label = {primitive_marker: :label}
 	
 	### Layout ###
-	dialog_border = args.layout.rect(row: 7, col: 6, w: 12, h: 5).merge(border) 			# Main Dialog
-	dialog_ui_line = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(border) 	# Dividing line
+	dialog_border = args.layout.rect(row: 7, col: 6, w: 12, h: 5).merge(BORDER) 			# Main Dialog
+	dialog_ui_line = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(BORDER) 	# Dividing line
 	
 	### Back and Build Buttons ###
 	back_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1), LEFT, :select_building, nil, :back_button, args)
 	build_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1), "Build", :build, building, :build_button, args)
 	
-	args.state.buttons = [build_button.merge(sprite), back_button.merge(sprite)]
+	args.state.buttons = [build_button.merge(SPRITE), back_button.merge(SPRITE)]
 
 	
 	### Title ###
-	title_border = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1).merge(border) # Title
+	title_border = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1).merge(BORDER) # Title
 	title_loc = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1)
 	title = {x: title_loc[:center_x], y: title_loc[:center_y] - 1, 
 							text: details[:name], size_enum: 2,
-							vertical_alignment_enum: 1, alignment_enum: 1}.merge(label)
+							vertical_alignment_enum: 1, alignment_enum: 1}.merge(LABEL)
 	
 	### Description ###
 	description_loc = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 1) # Description
@@ -91,10 +92,10 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 
 	
 	### Cost ###
-	cost_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25), :cost_box, "Cost", args).merge(sprite)
+	cost_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25), :cost_box, "Cost", args).merge(SPRITE)
 
 	
-	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25).merge(border)
+	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25).merge(BORDER)
 	cost_hash = details[:cost]
 	costs_names = cost_hash.keys
 	costs_names.map!{|name| {text: name.to_s.capitalize+":", size_enum: -2, alignment_enum: 2, primitive_marker: :label}}
@@ -102,23 +103,22 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	costs_values.map!{|val| {text: val.to_s, size_enum: -2, alignment_enum: 0, primitive_marker: :label}}
 
 	
-	cost_labels = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_names)
-
-	cost_labels2 = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_values)
+	cost_labels_names = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_names)
+	cost_labels_values = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_values)
 
 	
 	### Production / Consumption ###
-	prod_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25), :prod_box, "Production and Consumption", args).merge(sprite)
+	prod_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25), :prod_box, "Production and Consumption", args).merge(SPRITE)
 
 	prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
 	production_hash = details[:production]
 	production_text = horizontal_paired_list("Production: ", production_hash, UP, args)
-	production_label = {text: production_text, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}.merge(label)
+	production_label = {text: production_text, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}.merge(LABEL)
 	
 	con_label_box = args.layout.rect(row: 9.2, col: 9.5, w: 8.5, h: 2.25)
 	consumption_hash = details[:consumption]
 	consumption_text = horizontal_paired_list("Consumption: ", consumption_hash, DOWN, args)
-	consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(label)
+	consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(LABEL)
 
 	
 	dialog << args.state.buttons
@@ -126,8 +126,8 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	dialog << title_border
 	dialog << description	
 	dialog << cost_ui
-	dialog << cost_labels
-	dialog << cost_labels2
+	dialog << cost_labels_names
+	dialog << cost_labels_values
 	dialog << prod_ui
 	dialog << consumption_label	
 	dialog << production_label

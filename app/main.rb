@@ -106,31 +106,18 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	### Production / Consumption ###
 	prod_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25), :prod_box, "Production and Consumption", args).merge(sprite)
 
-	
+	prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
 	production_hash = details[:production]
-	production_label = "Production: "
-	add_comma = false
-	production_hash.each do |res, val|
-		production_label += "," if add_comma
-		production_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + UP
-		add_comma = true
-	end	
-	
-	consumption_hash = details[:consumption]
-	consumption_label = "Consumption: "
-	add_comma = false
-	consumption_hash.each do |res, val|
-		consumption_label += "," if add_comma
-		consumption_label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s + DOWN
-		add_comma = true
-	end
+	production_header = "Production: "
+	production_text = horizontal_paired_list(production_header, production_hash, UP, args)
+	production_label = {text: production_text, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}.merge(label)
 	
 	con_label_box = args.layout.rect(row: 9.2, col: 9.5, w: 8.5, h: 2.25)
-	consumption_label = {text: consumption_label, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(label)
+	consumption_hash = details[:consumption]
+	consumption_header = "Consumption: "
+	consumption_text = horizontal_paired_list(consumption_header, consumption_hash, DOWN, args)
+	consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(label)
 
-	
-	prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
-	production_label = {text: production_label, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}.merge(label)
 	
 	dialog << args.state.buttons
 	dialog << title
@@ -147,6 +134,17 @@ end
 
 def render(args)
 	args.outputs.primitives << args.state.renderables.dialog
+end
+
+def horizontal_paired_list(label, hash, symbol=nil, args=$gtk.args)
+	add_comma = false
+	hash.each do |res, val|
+		label += "," if add_comma
+		label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s
+		label += symbol if symbol
+		add_comma = true
+	end
+	label
 end
 
 def get_button_from_layout(layout, text, method, argument, target, args)

@@ -108,14 +108,12 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 
 	prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
 	production_hash = details[:production]
-	production_header = "Production: "
-	production_text = horizontal_paired_list(production_header, production_hash, UP, args)
+	production_text = horizontal_paired_list("Production: ", production_hash, UP, args)
 	production_label = {text: production_text, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}.merge(label)
 	
 	con_label_box = args.layout.rect(row: 9.2, col: 9.5, w: 8.5, h: 2.25)
 	consumption_hash = details[:consumption]
-	consumption_header = "Consumption: "
-	consumption_text = horizontal_paired_list(consumption_header, consumption_hash, DOWN, args)
+	consumption_text = horizontal_paired_list("Consumption: ", consumption_hash, DOWN, args)
 	consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(label)
 
 	

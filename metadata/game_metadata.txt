@@ -1,8 +1,8 @@
-#devid=myname
+devid=m4rek
 #devtitle=My Name
 #gameid=mygame
-#gametitle=My Game
-#version=0.1
+gametitle=TeenyTinyCityBuilder
+version=0.0
 #icon=metadata/icon.png
 
 # Uncomment the entry below to bytecode compile your Ruby code (Pro License Only)

@@ -54,6 +54,8 @@ end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	raise unless building
+	
+	### Overhead ###
 	args.state.renderables.dialog = []
 	dialog = args.state.renderables.dialog
 	details = args.state.blueprints.structures[building]
@@ -61,8 +63,10 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	sprite = {primitive_marker: :sprite}
 	line = {primitive_marker: :line}
 	label = {primitive_marker: :label}
-	dialog << args.layout.rect(row: 7, col: 6, w: 12, h: 5).merge(border) 			# Main Dialog
-	dialog << args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(border) 	# Dividing line
+	
+	### Layout ###
+	dialog_border = args.layout.rect(row: 7, col: 6, w: 12, h: 5).merge(border) 			# Main Dialog
+	dialog_ui_line = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(border) 	# Dividing line
 	
 	### Back and Build Buttons ###
 	back_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1), LEFT, :select_building, nil, :back_button, args)
@@ -127,7 +131,8 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	dialog << prod_ui
 	dialog << consumption_label	
 	dialog << production_label
-	
+	dialog << dialog_border
+	dialog << dialog_ui_line
 end
 
 def render(args)

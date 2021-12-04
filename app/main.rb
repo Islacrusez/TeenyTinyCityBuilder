@@ -13,14 +13,16 @@
 
 def tick(args)
 	load_structures(args) unless args.state.buildings.ready
+	
+	args.state.buttons = []
 	args.state.production ||= Hash.new(0)
 	args.state.consumption ||= Hash.new(0)
 	args.state.inventory ||= Hash.new(0)
 	args.state.inventory[:workers] ||= 100
 	args.state.inventory[:tools] ||= 1000
 
-	dialog_box(args.state.selection.building, args)# if args.state.selection.building
-	
+	#dialog_box(args.state.selection.building, args)# if args.state.selection.building
+	dialog_box_select_pane(args)
 
 	
 	#args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
@@ -69,15 +71,55 @@ def box_M2(args)
 	#args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
 	buttons = args.state.buttons
 	
-	buttons << get_button_from_layout(args.layout.rect(row: 7, col: 0, w: 6, h: 1), "Material Gathering Buildings", :select_type, :gather, :raw_button, args)
-	buttons << get_button_from_layout(args.layout.rect(row: 8, col: 0, w: 6, h: 1), "Resource Processing Buildings", :select_type, :process, :proc_button, args)
-	buttons << get_button_from_layout(args.layout.rect(row: 9, col: 0, w: 6, h: 1), "Special Buildings", :select_type, :upgrade, :prog_button, args)
-	buttons << get_button_from_layout(args.layout.rect(row: 11, col: 0, w: 6, h: 1), "Recruit Units", :select_type, :units, :recruit_button, args)
-	buttons << get_button_from_layout(args.layout.rect(row: 10, col: 0, w: 6, h: 1), "Demolition", :select_type, :demolish, :demolish_button, args)
+	buttons << get_button_from_layout(args.layout.rect(row: 7, col: 0, w: 6, h: 1), 
+		"Resource Gathering Buildings", :select_type, :gather, :raw_button, args).merge(SPRITE)
+	buttons << get_button_from_layout(args.layout.rect(row: 8, col: 0, w: 6, h: 1), 
+		"Material Processing Buildings", :select_type, :process, :proc_button, args).merge(SPRITE)
+	buttons << get_button_from_layout(args.layout.rect(row: 9, col: 0, w: 6, h: 1), 
+		"Special Buildings", :select_type, :upgrade, :prog_button, args).merge(SPRITE)
+	buttons << get_button_from_layout(args.layout.rect(row: 11, col: 0, w: 6, h: 1), 
+		"Recruit Units", :select_type, :units, :recruit_button, args).merge(SPRITE)
+	buttons << get_button_from_layout(args.layout.rect(row: 10, col: 0, w: 6, h: 1), 
+		"Demolition", :select_type, :demolish, :demolish_button, args).merge(SPRITE)
 end
 
 def select_type(to_select, args)
 	$gtk.notify!(to_select.to_s)
+end
+
+def dialog_box_select_pane(args)
+	dialog_border = args.layout.rect(row: 7, col: 6, w: 12, h: 5).merge(BORDER)
+	dialog_ui_line = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(BORDER)
+	
+	details = {}
+	details[:name] = "Construct Processing Buildings"
+	
+	title_border = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1).merge(BORDER)
+	title_loc = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1)
+	title = {x: title_loc[:center_x], y: title_loc[:center_y] - 1, 
+							text: details[:name], size_enum: 2,
+							vertical_alignment_enum: 1, alignment_enum: 1}.merge(LABEL)
+	
+	borders = args.outputs.borders
+	
+	borders << args.layout.rect(row: 8.75, col: 7, w: 3, h: 1)
+	borders << args.layout.rect(row: 8.75, col: 10, w: 3, h: 1)
+	borders << args.layout.rect(row: 8.75, col: 13, w: 3, h: 1)	
+	borders << args.layout.rect(row: 9.75, col: 7, w: 3, h: 1)
+	borders << args.layout.rect(row: 9.75, col: 10, w: 3, h: 1)
+	borders << args.layout.rect(row: 9.75, col: 13, w: 3, h: 1)
+	borders << args.layout.rect(row: 10.75, col: 7, w: 3, h: 1)
+	borders << args.layout.rect(row: 10.75, col: 10, w: 3, h: 1)
+	borders << args.layout.rect(row: 10.75, col: 13, w: 3, h: 1)
+	
+	borders << args.layout.rect(row: 8.75, col: 16.3, w: 1.2, h: 1.5)
+	borders << args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5)
+
+	
+	args.state.renderables.dialog = []
+	args.state.renderables.dialog << dialog_border
+	args.state.renderables.dialog << dialog_ui_line
+	args.state.renderables.dialog << title
 end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)

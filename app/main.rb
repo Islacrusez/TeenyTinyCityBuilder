@@ -25,7 +25,7 @@ def tick(args)
 	
 	#args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
-	args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
+	#args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
 	args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 12) # Scene Control
 	
 	## Scene control buttons
@@ -37,6 +37,7 @@ def tick(args)
 	
 	prepare_resource_text(args)
 	box_M1(args)
+	box_M2(args)
 	
 	render(args)
 	game_step(args)
@@ -61,6 +62,49 @@ def box_M1(args)
 	args.state.renderables.m1 = []
 	args.state.renderables.m1 << ui_box
 	args.state.renderables.m1 << production
+end
+
+def box_M2(args)
+	#args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
+	
+	sprites = args.outputs.sprites
+	
+	#args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 2.5, h: 5) # left column
+	#args.outputs.borders << args.layout.rect(row: 7, col: 2.75, w: 2.5, h: 5) # right column
+	
+	args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 2.5, h: 1) # Build Raw
+	args.outputs.borders << args.layout.rect(row: 8, col: 0, w: 2.5, h: 1) # Build Processing
+	args.outputs.borders << args.layout.rect(row: 9, col: 0, w: 2.5, h: 1) # Build Progression
+	args.outputs.borders << args.layout.rect(row: 10, col: 0, w: 2.5, h: 1) # Recruit
+	args.outputs.borders << args.layout.rect(row: 11, col: 0, w: 2.5, h: 1) # Demolish
+	
+	sprites << get_button_from_layout(args.layout.rect(row: 7, col: 0, w: 2.5, h: 1), "Extractors", :select_type, :raw_materials, :raw_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 8, col: 0, w: 2.5, h: 1), "Processing", :select_type, :raw_materials, :proc_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 9, col: 0, w: 2.5, h: 1), "Progression", :select_type, :raw_materials, :prog_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 10, col: 0, w: 2.5, h: 1), "Recruit", :select_type, :raw_materials, :recruit_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 11, col: 0, w: 2.5, h: 1), "Demolish", :select_type, :raw_materials, :demolish_button, args)
+	
+	args.outputs.borders << args.layout.rect(row: 7, col: 2.75, w: 2.5, h: 1) # 
+	args.outputs.borders << args.layout.rect(row: 8, col: 2.75, w: 2.5, h: 1) # 
+	args.outputs.borders << args.layout.rect(row: 9, col: 2.75, w: 2.5, h: 1) # 
+	args.outputs.borders << args.layout.rect(row: 10, col: 2.75, w: 2.5, h: 1) # 
+	args.outputs.borders << args.layout.rect(row: 11, col: 2.75, w: 2.5, h: 1) # 
+	
+	sprites << get_button_from_layout(args.layout.rect(row: 7, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 8, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 9, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 10, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 11, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
+	
+	args.outputs.borders << args.layout.rect(row: 7, col: 5.25, w: 0.75, h: 2.5) # Scroll Up
+	args.outputs.borders << args.layout.rect(row: 9.5, col: 5.25, w: 0.75, h: 2.5) # Scroll Down
+	
+	sprites << get_button_from_layout(args.layout.rect(row: 7, col: 5.25, w: 0.75, h: 2.5), UP, :select_type, :raw_materials, :up_button, args)
+	sprites << get_button_from_layout(args.layout.rect(row: 9.5, col: 5.25, w: 0.75, h: 2.5), DOWN, :select_type, :raw_materials, :down_button, args)
+end
+
+def select_type(to_select, args)
+
 end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)
@@ -151,7 +195,7 @@ def vertical_paired_list(layout, hash, size=0, args=$gtk.args)
 	left_array.map!{|name| {text: name.to_s.capitalize.gsub("_", " ")+":", size_enum: size, alignment_enum: 2, primitive_marker: :label}}
 	right_array.map!{|val| {text: val.to_s, size_enum: size, alignment_enum: 0, primitive_marker: :label}}
 
-	layout[:drow] ||= 0.4
+	layout[:drow] ||= 0.5
 	
 	labels = []
 	labels << args.layout.rect_group(layout.merge({group: left_array}))

@@ -1,14 +1,8 @@
-# def tick(args)
-	# init(args) unless args.state.ready == true
-	# game_step(args)
-	# update_display(args)
-	# check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
-# end
-
 	UP = "▲"
 	DOWN = "▼"
 	RIGHT = "▶"
 	LEFT = "◀"
+	SIGNS = ["=", "▲", "▼"]
 	
 	BORDER = {primitive_marker: :border}
 	SPRITE = {primitive_marker: :sprite}
@@ -18,33 +12,18 @@
 	FONT = "default"
 
 def tick(args)
+	load_structures(args) unless args.state.buildings.ready
 	args.state.production ||= Hash.new(0)
+	args.state.consumption ||= Hash.new(0)
 	args.state.inventory ||= Hash.new(0)
-
-	args.state.selection.building ||= :iron_mine
-	args.state.blueprints.structures = {}
-	args.state.blueprints.structures[:iron_mine] =
-		{	name:		"Iron Ore Mine",
-			cost:		{wood: 30, workers: 3},
-			production:	{ore: 1},
-			consumption: {wood: 3, tools: 1},
-			available: false,
-			description: "Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore that requires refinement at a smelter."
-		}
-	args.state.blueprints.structures[:smelter] =
-		{	name:		"Smelter",
-			cost:		{stone: 60, wood: 20, workers: 2},
-			production:	{iron: 1},
-			consumption: {coal: 10, iron_ore: 10},
-			available: false,
-			description: "A tall chimney furnace able to smelt iron ore into somewhat usable metal"
-		}
+	args.state.inventory[:workers] ||= 100
+	args.state.inventory[:tools] ||= 1000
 
 	dialog_box(args.state.selection.building, args)# if args.state.selection.building
 	
 	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
 	
-	args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
+	#args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
 	args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
 	args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 12) # Scene Control
@@ -56,7 +35,32 @@ def tick(args)
 	args.outputs.borders << args.layout.rect(row: 7, col: 19, w: 4, h: 2)
 	args.outputs.borders << args.layout.rect(row: 9, col: 19, w: 4, h: 2)
 	
+	prepare_resource_text(args)
+	box_M1(args)
+	
 	render(args)
+	game_step(args)
+end
+
+def prepare_resource_text(args)
+	args.state.ui = {}
+	return if args.state.inventory.keys.length < 1
+	args.state.inventory.each do |resource, stock|
+		sign = SIGNS[args.state.production[resource].sign]
+		production = sign + " " + args.state.production[resource].abs.to_s
+		stock = args.state.inventory[resource]
+		stock = stock.idiv(1000).to_s + "k" if stock > 10000
+		args.state.ui[resource] = "#{stock} (#{production})"
+	end
+end
+
+def box_M1(args)
+	ui_box = get_ui_box_from_layout(args.layout.rect(row: 0, col: 0, w: 6, h: 7), :m1_build_ui, "Inventory & Production", args)
+	
+	production = vertical_paired_list({row: 1, col: 2, drow: 0.5}, args.state.ui, size=0, args=$gtk.args)
+	args.state.renderables.m1 = []
+	args.state.renderables.m1 << ui_box
+	args.state.renderables.m1 << production
 end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)
@@ -126,6 +130,7 @@ end
 
 def render(args)
 	args.outputs.primitives << args.state.renderables.dialog
+	args.outputs.primitives << args.state.renderables.m1
 end
 
 def horizontal_paired_list(label, hash, symbol=nil, args=$gtk.args)
@@ -143,7 +148,7 @@ def vertical_paired_list(layout, hash, size=0, args=$gtk.args)
 	left_array = hash.keys
 	right_array = hash.values
 	
-	left_array.map!{|name| {text: name.to_s.capitalize+":", size_enum: size, alignment_enum: 2, primitive_marker: :label}}
+	left_array.map!{|name| {text: name.to_s.capitalize.gsub("_", " ")+":", size_enum: size, alignment_enum: 2, primitive_marker: :label}}
 	right_array.map!{|val| {text: val.to_s, size_enum: size, alignment_enum: 0, primitive_marker: :label}}
 
 	layout[:drow] ||= 0.4
@@ -164,86 +169,58 @@ def get_ui_box_from_layout(layout, target, text, args)
 end
 
 
-def select_building(to_select)
+def select_building(to_select, args=$gtk.args)
 	args.state.selection.building = to_select
 end
 
-def init(args)
-	args.state.production = Hash.new(0)
-	args.state.inventory = Hash.new(0)
-	
+def load_structures(args)
+	args.state.selection.building ||= :iron_mine
 	args.state.blueprints.structures = {}
 	args.state.blueprints.structures[:iron_mine] =
 		{	name:		"Iron Ore Mine",
-			cost:		{wood: 20},
-			production:	{ore: 5},
+			cost:		{wood: 30, workers: 3},
+			production:	{ore: 1},
+			consumption: {wood: 3, tools: 1},
 			available: false,
-			description: "Mining tunnels through deep into rock, producing iron ore"
+			description: "Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore that requires refinement at a smelter."
+		}
+	args.state.blueprints.structures[:smelter] =
+		{	name:		"Smelter",
+			cost:		{stone: 60, wood: 20, workers: 2},
+			production:	{iron: 1},
+			consumption: {coal: 10, ore: 10},
+			available: false,
+			description: "A tall chimney furnace able to smelt iron ore into somewhat usable metal"
 		}
 	args.state.blueprints.structures[:woodcutter] =
 		{	name:		"Woodcutter's Hut",
 			cost:		{wood: 0},
 			production:	{wood: 20},
+			consumption: {wood: 0},
 			available: true,
 			description: "Shelter for woodcutter and tools, produces wood for construction"
 		}
-	args.state.blueprints.structures[:smelter] =
-		{	name:		"Smelter",
-			cost:		{stone: 60, wood: 20, charcoal: 100},
-			production:	{iron: 1},
-			available: false,
-			description: "A tall chimney furnace able to smelt iron ore into usable metal"
-		}
+
 	args.state.blueprints.structures[:quarry] =
 		{	name:		"Quarry",
 			cost:		{wood: 40},
 			production:	{stone: 10},
+			consumption: {wood: 0},
 			available: true,
 			description: "Scaffolding across a rockface where usable stone is cut from the cliff"
 		}
 	args.state.blueprints.structures[:charcoal_pile] =
 		{	name:		"Charcoal Pile",
 			cost:		{wood: 100},
-			production:	{charcoal: 2},
+			production:	{coal: 2},
+			consumption: {wood: 20},
 			available: true,
 			description: "A pile of wood covered in earth and sealed so as to burn down into charcoal. An inefficient way to gain coal-type fuel."
 		}
 		
-	
-	args.state.buttons = []
-
-	SIGNS = ["=", "▲", "▼"]
-	
-	prepare_ui(args)
-	
-	args.state.ready = true
-	$gtk.notify!("Init complete!")
-end
-
-def prepare_ui(args)
-
-	args.outputs.static_sprites << make_ui_box(:resources_ui, "Resources", 250, 680, args).merge({x: 1010, y: 20})
-	
-	BUILD_BOX_LAYOUT = [{x: 10, y:     10, w: 420, h: 130},
-						{x: 10, y: 130+20, w: 420, h: 130},
-						{x: 10, y: 260+30, w: 420, h: 130},
-						{x: 10, y: 390+40, w: 420, h: 130},
-						{x: 10, y: 520+50, w: 420, h: 130}
-						]
-	
-	location = 0
-	args.state.blueprints.structures.each_key do |building|
-		prepare_build_boxes(building, args)
-		args.outputs.static_sprites << BUILD_BOX_LAYOUT[location].merge({path: (building.to_s+"_ui_box").to_sym})
-		x = BUILD_BOX_LAYOUT[location][:x] + 10
-		y = BUILD_BOX_LAYOUT[location][:y] + 10
-		w = 80
-		h = 50
-		args.state.buttons << make_button(x, y, w, h, "Build", :build, building, ("build_" + building.to_s + "button").to_sym, args)
-		location += 1
-	end
-	
-	args.outputs.static_sprites << args.state.buttons
+		
+	args.state.buildings.ready = true
+	$gtk.notify!("Buildings loaded!")
 end
 
 def prepare_build_boxes(building, args) # key, args
@@ -273,25 +250,11 @@ def prepare_build_boxes(building, args) # key, args
 	end
 end
 
-
-
-def prepare_resource_counters(args)
-	row = 0
-	args.state.inventory.each do |resource, stock|
-		sign = SIGNS[args.state.production[resource].sign]
-		production = sign + " " + args.state.production[resource].abs.to_s
-		stock = args.state.inventory[resource]
-		stock = stock.idiv(1000).to_s + "k" if stock > 10000
-		args.state.ui[resource] = [1030, 650 - row*30, "#{resource.capitalize} : #{stock} (#{production})"]
-		args.outputs.labels << args.state.ui[resource]
-		row += 1
-	end
-end
-
 def game_step(args)
 	return unless args.tick_count.mod(60) == 0
 	args.state.production.each do |resource, amount|
 		args.state.inventory[resource] += amount
+		args.state.inventory[resource] -= args.state.consumption[resource]
 		args.state.inventory[resource] = 0 if args.state.inventory[resource].negative?
 	end
 end
@@ -307,10 +270,9 @@ def build(building, args=$gtk.args)
 	structure[:production].each do |material, gain|
 		args.state.production[material] += gain
 	end
-end
-
-def update_display(args)
-	prepare_resource_counters(args)
+	structure[:consumption].each do |material, loss|
+		args.state.production[material] -= loss
+	end
 end
 
 def make_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)

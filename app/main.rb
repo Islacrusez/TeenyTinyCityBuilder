@@ -66,8 +66,8 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	details = args.state.blueprints.structures[building]
 	
 	### Layout ###
-	dialog_border = args.layout.rect(row: 7, col: 6, w: 12, h: 5).merge(BORDER) 			# Main Dialog
-	dialog_ui_line = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(BORDER) 	# Dividing line
+	dialog_border = args.layout.rect(row: 7, col: 6, w: 12, h: 5).merge(BORDER)
+	dialog_ui_line = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(BORDER)
 	
 	### Back and Build Buttons ###
 	back_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1), LEFT, :select_building, nil, :back_button, args)
@@ -77,14 +77,14 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 
 	
 	### Title ###
-	title_border = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1).merge(BORDER) # Title
+	title_border = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1).merge(BORDER)
 	title_loc = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1)
 	title = {x: title_loc[:center_x], y: title_loc[:center_y] - 1, 
 							text: details[:name], size_enum: 2,
 							vertical_alignment_enum: 1, alignment_enum: 1}.merge(LABEL)
 	
 	### Description ###
-	description_loc = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 1) # Description
+	description_loc = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 1)
 	description = textbox(details[:description],
 						description_loc[:x], description_loc[:center_y], 
 						description_loc[:w], 
@@ -93,19 +93,7 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	
 	### Cost ###
 	cost_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25), :cost_box, "Cost", args).merge(SPRITE)
-
-	
-	cost_box = args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25).merge(BORDER)
-	cost_hash = details[:cost]
-	costs_names = cost_hash.keys
-	costs_names.map!{|name| {text: name.to_s.capitalize+":", size_enum: -2, alignment_enum: 2, primitive_marker: :label}}
-	costs_values = cost_hash.values
-	costs_values.map!{|val| {text: val.to_s, size_enum: -2, alignment_enum: 0, primitive_marker: :label}}
-
-	
-	cost_labels_names = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_names)
-	cost_labels_values = args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: costs_values)
-
+	cost = vertical_paired_list({row: 10.1, col: 7.75, drow: 0.4}, details[:cost], -2, args)
 	
 	### Production / Consumption ###
 	prod_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25), :prod_box, "Production and Consumption", args).merge(SPRITE)
@@ -120,14 +108,13 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	consumption_text = horizontal_paired_list("Consumption: ", consumption_hash, DOWN, args)
 	consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(LABEL)
 
-	
+	### Renderables ###
 	dialog << args.state.buttons
 	dialog << title
 	dialog << title_border
 	dialog << description	
 	dialog << cost_ui
-	dialog << cost_labels_names
-	dialog << cost_labels_values
+	dialog << cost
 	dialog << prod_ui
 	dialog << consumption_label	
 	dialog << production_label
@@ -150,6 +137,22 @@ def horizontal_paired_list(label, hash, symbol=nil, args=$gtk.args)
 	label
 end
 
+def vertical_paired_list(layout, hash, size=0, args=$gtk.args)
+	left_array = hash.keys
+	right_array = hash.values
+	
+	left_array.map!{|name| {text: name.to_s.capitalize+":", size_enum: size, alignment_enum: 2, primitive_marker: :label}}
+	right_array.map!{|val| {text: val.to_s, size_enum: size, alignment_enum: 0, primitive_marker: :label}}
+
+	layout[:drow] ||= 0.4
+	
+	labels = []
+	labels << args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: left_array)
+	labels << args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: right_array)
+
+	labels
+end
+	
 def get_button_from_layout(layout, text, method, argument, target, args)
 	make_button(layout[:x], layout[:y], layout[:w], layout[:h], text, method, argument, target, args)
 end

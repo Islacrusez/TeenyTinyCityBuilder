@@ -14,6 +14,8 @@
 	SPRITE = {primitive_marker: :sprite}
 	LINE = {primitive_marker: :line}
 	LABEL = {primitive_marker: :label}
+	
+	FONT = "default"
 
 def tick(args)
 	args.state.production ||= Hash.new(0)
@@ -88,7 +90,7 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	description = textbox(details[:description],
 						description_loc[:x], description_loc[:center_y], 
 						description_loc[:w], 
-						size=-2, font="default").each{|t| t.merge!({vertical_alignment_enum: 0, primitive_marker: :label})}
+						size=-2, font=FONT).each{|t| t.merge!({vertical_alignment_enum: 0, primitive_marker: :label})}
 
 	
 	### Cost ###
@@ -254,8 +256,8 @@ def prepare_build_boxes(building, args) # key, args
 	box.sprites << make_ui_box(("build_" + building.to_s).to_sym, details[:name], 420, 130, args)
 	box.labels << textbox(details[:description], 10, 108, 390, size=-2, font="default")
 	box.lines << [10, 70, 410, 70]
-	box.sprites << make_ui_box(("cost_"+building.to_s).to_sym, ["Cost", -3, "default"], 150, 55, args).merge({x: 100, y: 10})
-	box.sprites << make_ui_box(("production_"+building.to_s), ["Production", -3, "default"], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
+	box.sprites << make_ui_box(("cost_"+building.to_s).to_sym, ["Cost", -3, FONT], 150, 55, args).merge({x: 100, y: 10})
+	box.sprites << make_ui_box(("production_"+building.to_s), ["Production", -3, FONT], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
 	positions = [[105, 17 + 5 + 12 + 12],[105, 17 + 12],[],[]]
 	position = 0
 	details[:cost].each do |resource, value|

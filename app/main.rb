@@ -149,8 +149,8 @@ def vertical_paired_list(layout, hash, size=0, args=$gtk.args)
 	layout[:drow] ||= 0.4
 	
 	labels = []
-	labels << args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: left_array)
-	labels << args.layout.rect_group(row: 10.1, col: 7.75, drow: 0.4, group: right_array)
+	labels << args.layout.rect_group(layout.merge({group: left_array}))
+	labels << args.layout.rect_group(layout.merge({group: right_array}))
 
 	labels
 end

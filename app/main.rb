@@ -21,7 +21,7 @@ def tick(args)
 
 	dialog_box(args.state.selection.building, args)# if args.state.selection.building
 	
-	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
+
 	
 	#args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
@@ -40,6 +40,7 @@ def tick(args)
 	box_M2(args)
 	
 	render(args)
+	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
 	game_step(args)
 end
 
@@ -66,45 +67,17 @@ end
 
 def box_M2(args)
 	#args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
+	buttons = args.state.buttons
 	
-	sprites = args.outputs.sprites
-	
-	#args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 2.5, h: 5) # left column
-	#args.outputs.borders << args.layout.rect(row: 7, col: 2.75, w: 2.5, h: 5) # right column
-	
-	args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 2.5, h: 1) # Build Raw
-	args.outputs.borders << args.layout.rect(row: 8, col: 0, w: 2.5, h: 1) # Build Processing
-	args.outputs.borders << args.layout.rect(row: 9, col: 0, w: 2.5, h: 1) # Build Progression
-	args.outputs.borders << args.layout.rect(row: 10, col: 0, w: 2.5, h: 1) # Recruit
-	args.outputs.borders << args.layout.rect(row: 11, col: 0, w: 2.5, h: 1) # Demolish
-	
-	sprites << get_button_from_layout(args.layout.rect(row: 7, col: 0, w: 2.5, h: 1), "Extractors", :select_type, :raw_materials, :raw_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 8, col: 0, w: 2.5, h: 1), "Processing", :select_type, :raw_materials, :proc_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 9, col: 0, w: 2.5, h: 1), "Progression", :select_type, :raw_materials, :prog_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 10, col: 0, w: 2.5, h: 1), "Recruit", :select_type, :raw_materials, :recruit_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 11, col: 0, w: 2.5, h: 1), "Demolish", :select_type, :raw_materials, :demolish_button, args)
-	
-	args.outputs.borders << args.layout.rect(row: 7, col: 2.75, w: 2.5, h: 1) # 
-	args.outputs.borders << args.layout.rect(row: 8, col: 2.75, w: 2.5, h: 1) # 
-	args.outputs.borders << args.layout.rect(row: 9, col: 2.75, w: 2.5, h: 1) # 
-	args.outputs.borders << args.layout.rect(row: 10, col: 2.75, w: 2.5, h: 1) # 
-	args.outputs.borders << args.layout.rect(row: 11, col: 2.75, w: 2.5, h: 1) # 
-	
-	sprites << get_button_from_layout(args.layout.rect(row: 7, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 8, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 9, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 10, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 11, col: 2.75, w: 2.5, h: 1), "", :select_type, :raw_materials, :nil_button, args)
-	
-	args.outputs.borders << args.layout.rect(row: 7, col: 5.25, w: 0.75, h: 2.5) # Scroll Up
-	args.outputs.borders << args.layout.rect(row: 9.5, col: 5.25, w: 0.75, h: 2.5) # Scroll Down
-	
-	sprites << get_button_from_layout(args.layout.rect(row: 7, col: 5.25, w: 0.75, h: 2.5), UP, :select_type, :raw_materials, :up_button, args)
-	sprites << get_button_from_layout(args.layout.rect(row: 9.5, col: 5.25, w: 0.75, h: 2.5), DOWN, :select_type, :raw_materials, :down_button, args)
+	buttons << get_button_from_layout(args.layout.rect(row: 7, col: 0, w: 6, h: 1), "Material Gathering Buildings", :select_type, :gather, :raw_button, args)
+	buttons << get_button_from_layout(args.layout.rect(row: 8, col: 0, w: 6, h: 1), "Resource Processing Buildings", :select_type, :process, :proc_button, args)
+	buttons << get_button_from_layout(args.layout.rect(row: 9, col: 0, w: 6, h: 1), "Special Buildings", :select_type, :upgrade, :prog_button, args)
+	buttons << get_button_from_layout(args.layout.rect(row: 11, col: 0, w: 6, h: 1), "Recruit Units", :select_type, :units, :recruit_button, args)
+	buttons << get_button_from_layout(args.layout.rect(row: 10, col: 0, w: 6, h: 1), "Demolition", :select_type, :demolish, :demolish_button, args)
 end
 
 def select_type(to_select, args)
-
+	$gtk.notify!(to_select.to_s)
 end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)
@@ -159,7 +132,7 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(LABEL)
 
 	### Renderables ###
-	dialog << args.state.buttons
+	#dialog << args.state.buttons
 	dialog << title
 	dialog << title_border
 	dialog << description	
@@ -173,6 +146,7 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 end
 
 def render(args)
+	args.outputs.primitives << args.state.buttons
 	args.outputs.primitives << args.state.renderables.dialog
 	args.outputs.primitives << args.state.renderables.m1
 end

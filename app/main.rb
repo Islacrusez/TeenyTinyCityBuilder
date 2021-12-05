@@ -17,13 +17,12 @@ def tick(args)
 	args.state.buttons = []
 	args.state.production ||= Hash.new(0)
 	args.state.consumption ||= Hash.new(0)
+	args.state.transactions ||= []
 	args.state.inventory ||= Hash.new(0)
 	args.state.selection.type ||= :gather
 
 
-	dialog_box(args.state.selection.building, args)# if args.state.selection.building
-	#dialog_box_select_pane(args)
-
+	dialog_box(args.state.selection.building, args)
 	
 	#args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
@@ -150,8 +149,6 @@ def dialog_box_select_pane(args)
 		args.state.buttons << this_button
 	end
 	
-	#(layout, text, method, argument, target, args)
-	
 	args.state.renderables.dialog = []
 	args.state.renderables.dialog << dialog_border
 	args.state.renderables.dialog << dialog_ui_line
@@ -213,7 +210,6 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(LABEL)
 
 	### Renderables ###
-	#dialog << args.state.buttons
 	dialog << title
 	dialog << title_border
 	dialog << description	
@@ -273,14 +269,13 @@ def select_building(to_select, args=$gtk.args)
 end
 
 def load_structures(args)
-	#args.state.selection.building ||= :iron_mine
 	args.state.blueprints.structures = {}
 	args.state.blueprints.structures[:iron_mine] =
 		{	name:		"Iron Ore Mine",
 			cost:		{wood: 30, workers: 3},
 			production:	{ore: 1},
 			consumption: {wood: 3, tools: 1},
-			available: false,
+			available: true,
 			type: :gather,
 			description: "Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore that requires refinement at a smelter."
 		}
@@ -321,6 +316,15 @@ def load_structures(args)
 			type: :process,
 			description: "A pile of wood covered in earth and sealed so as to burn down into charcoal. An inefficient way to gain coal-type fuel."
 		}
+	args.state.blueprints.structures[:blacksmith] =
+		{	name:		"Blacksmith",
+			cost:		{wood: 30, stone: 100, iron: 50},
+			production:	{tools: 5},
+			consumption: {iron: 10, coal: 20},
+			available: true,
+			type: :process,
+			description: "A furnace and anvil, where a craftsman hammers iron bars into wrought-iron tools."
+		}
 		
 		
 	args.state.buildings.ready = true
@@ -356,10 +360,24 @@ end
 
 def game_step(args)
 	return unless args.tick_count.mod(60) == 0
-	args.state.production.each do |resource, amount|
-		args.state.inventory[resource] += amount
-		args.state.inventory[resource] -= args.state.consumption[resource]
-		args.state.inventory[resource] = 0 if args.state.inventory[resource].negative?
+	args.state.transactions.each do |transaction|
+		costs = transaction[:consumption]
+		gains = transaction[:production]
+		transaction_valid = true
+		costs.each do |material, value|
+			new_val = args.state.inventory[material] - value
+			transaction_valid = false if new_val.negative?
+			break unless transaction_valid
+		end
+		if transaction_valid
+			costs.each do |material, value|
+				args.state.inventory[material] -= value
+			end
+		
+			gains.each do |material, value|
+				args.state.inventory[material] += value
+			end
+		end
 	end
 end
 
@@ -377,6 +395,10 @@ def build(building, args=$gtk.args)
 	structure[:consumption].each do |material, loss|
 		args.state.production[material] -= loss
 	end
+	
+	transaction = {consumption: structure[:consumption], production: structure[:production]}
+	
+	args.state.transactions << transaction
 end
 
 def make_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)
@@ -403,17 +425,6 @@ def check_mouse(mouse, args)
 	end
 end
 
-# def make_ui_box(target, name, w, h, args)
-	# text_width, text_height = *($gtk.calcstringbox(*name))
-	# args.outputs[target].primitives << [0, 0, 1280, 720, *$gtk.background_color].solids	
-	# args.outputs[target].primitives << [0, 0, w, h, 0, 0, 0].borders
-	# args.outputs[target].primitives << [10, h - text_height / 2, text_width + 10, text_height, *$gtk.background_color].solids
-	# text, size, font = *name
-	# args.outputs[target].primitives << [15, h + text_height / 2, text, size, 0, 0, 0, 0, 255, font].labels
-	# args.outputs[target].height = h + text_height / 2
-	# args.outputs[target].width = w
-	# {w: w, h: h + text_height / 2, path: target}
-# end
 def make_ui_box(target, name, w, h, args)
 	text_width, text_height = *($gtk.calcstringbox(*name))
 	args.outputs[target].primitives << [0, 0, w, h, *$gtk.background_color].solids	

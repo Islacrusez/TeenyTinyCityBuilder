@@ -18,8 +18,8 @@ def tick(args)
 	args.state.production ||= Hash.new(0)
 	args.state.consumption ||= Hash.new(0)
 	args.state.inventory ||= Hash.new(0)
-	args.state.inventory[:workers] ||= 100
-	args.state.inventory[:tools] ||= 1000
+	args.state.selection.type ||= :gather
+
 
 	dialog_box(args.state.selection.building, args)# if args.state.selection.building
 	#dialog_box_select_pane(args)
@@ -44,6 +44,12 @@ def tick(args)
 	render(args)
 	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
 	game_step(args)
+end
+
+def start(args=$gtk.args)
+	args.state.inventory[:workers] += 100
+	args.state.inventory[:tools] += 1000
+	"Gave 100 workers and 1000 tools"
 end
 
 def prepare_resource_text(args)
@@ -84,15 +90,21 @@ def box_M2(args)
 end
 
 def select_type(to_select, args)
-	$gtk.notify!(to_select.to_s)
+	args.state.selection.type = to_select
+	args.state.selection.building = nil
 end
 
 def dialog_box_select_pane(args)
+	args.state.dialog_selection_titles ||= {gather: "Construct Gathering Buildings",
+											process: "Construct Processing Buildings",
+											upgrade: "Construct Advanced Buildings",
+											units: "Recruit Units",
+											demolish: "Demolish Buildings"}
 	dialog_border = args.layout.rect(row: 7, col: 6, w: 12, h: 5).merge(BORDER)
 	dialog_ui_line = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(BORDER)
 	
 	details = {}
-	details[:name] = "Construct Processing Buildings"
+	details[:name] = args.state.dialog_selection_titles[args.state.selection.type]
 	
 	title_border = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1).merge(BORDER)
 	title_loc = args.layout.rect(row: 7.25, col: 8, w: 7, h: 1)
@@ -100,21 +112,45 @@ def dialog_box_select_pane(args)
 							text: details[:name], size_enum: 2,
 							vertical_alignment_enum: 1, alignment_enum: 1}.merge(LABEL)
 	
-	borders = args.outputs.borders
+#	borders = args.outputs.borders
+	button_list = []
+	borders = button_list
 	
-	borders << args.layout.rect(row: 8.75, col: 7, w: 3, h: 1)
-	borders << args.layout.rect(row: 8.75, col: 10, w: 3, h: 1)
-	borders << args.layout.rect(row: 8.75, col: 13, w: 3, h: 1)	
-	borders << args.layout.rect(row: 9.75, col: 7, w: 3, h: 1)
-	borders << args.layout.rect(row: 9.75, col: 10, w: 3, h: 1)
-	borders << args.layout.rect(row: 9.75, col: 13, w: 3, h: 1)
-	borders << args.layout.rect(row: 10.75, col: 7, w: 3, h: 1)
-	borders << args.layout.rect(row: 10.75, col: 10, w: 3, h: 1)
-	borders << args.layout.rect(row: 10.75, col: 13, w: 3, h: 1)
+	borders << args.layout.rect(row: 8.75, col: 7, w: 4, h: 1)
+	borders << args.layout.rect(row: 9.75, col: 7, w: 4, h: 1)
+	borders << args.layout.rect(row: 10.75, col: 7, w: 4, h: 1)
 	
-	borders << args.layout.rect(row: 8.75, col: 16.3, w: 1.2, h: 1.5)
-	borders << args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5)
+	borders << args.layout.rect(row: 8.75, col: 11, w: 4, h: 1)	
+	borders << args.layout.rect(row: 9.75, col: 11, w: 4, h: 1)
+	borders << args.layout.rect(row: 10.75, col: 11, w: 4, h: 1)
+	
+	#args.outputs.borders << args.layout.rect(row: 8.75, col: 16.3, w: 1.2, h: 1.5) # UP
+	#args.outputs.borders << args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5) # DOWN
 
+	### Allocate building templates ###
+	args.state.building_list = Hash.new([])
+	building_list = args.state.building_list
+	args.state.blueprints.structures.each do |key, building|
+		next unless building[:available]
+		next unless building[:type] == args.state.selection.type
+		building_list[building[:type]] << key
+	end
+	
+	selected_list = building_list[args.state.selection.type]
+	
+	current = 0
+	max = selected_list.length
+	button_list.each do |button_space|
+		current += 1
+		break if current > max
+		this_building = selected_list.shift
+		name = args.state.blueprints.structures[this_building][:name]
+		target = ("build_" + ((this_building).to_s)).to_sym
+		this_button = get_button_from_layout(button_space, name, :select_building, this_building, target, args)
+		args.state.buttons << this_button
+	end
+	
+	#(layout, text, method, argument, target, args)
 	
 	args.state.renderables.dialog = []
 	args.state.renderables.dialog << dialog_border
@@ -245,6 +281,7 @@ def load_structures(args)
 			production:	{ore: 1},
 			consumption: {wood: 3, tools: 1},
 			available: false,
+			type: :gather,
 			description: "Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore that requires refinement at a smelter."
 		}
 	args.state.blueprints.structures[:smelter] =
@@ -252,7 +289,8 @@ def load_structures(args)
 			cost:		{stone: 60, wood: 20, workers: 2},
 			production:	{iron: 1},
 			consumption: {coal: 10, ore: 10},
-			available: false,
+			available: true,
+			type: :process,
 			description: "A tall chimney furnace able to smelt iron ore into somewhat usable metal"
 		}
 	args.state.blueprints.structures[:woodcutter] =
@@ -261,6 +299,7 @@ def load_structures(args)
 			production:	{wood: 20},
 			consumption: {wood: 0},
 			available: true,
+			type: :gather,
 			description: "Shelter for woodcutter and tools, produces wood for construction"
 		}
 
@@ -270,6 +309,7 @@ def load_structures(args)
 			production:	{stone: 10},
 			consumption: {wood: 0},
 			available: true,
+			type: :gather,
 			description: "Scaffolding across a rockface where usable stone is cut from the cliff"
 		}
 	args.state.blueprints.structures[:charcoal_pile] =
@@ -278,6 +318,7 @@ def load_structures(args)
 			production:	{coal: 2},
 			consumption: {wood: 20},
 			available: true,
+			type: :process,
 			description: "A pile of wood covered in earth and sealed so as to burn down into charcoal. An inefficient way to gain coal-type fuel."
 		}
 		

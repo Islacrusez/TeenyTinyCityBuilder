@@ -21,8 +21,8 @@ def tick(args)
 	args.state.inventory[:workers] ||= 100
 	args.state.inventory[:tools] ||= 1000
 
-	#dialog_box(args.state.selection.building, args)# if args.state.selection.building
-	dialog_box_select_pane(args)
+	dialog_box(args.state.selection.building, args)# if args.state.selection.building
+	#dialog_box_select_pane(args)
 
 	
 	#args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
@@ -123,7 +123,10 @@ def dialog_box_select_pane(args)
 end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)
-	raise unless building
+	unless building
+		dialog_box_select_pane(args)
+		return
+	end
 	
 	### Overhead ###
 	args.state.renderables.dialog = []
@@ -234,7 +237,7 @@ def select_building(to_select, args=$gtk.args)
 end
 
 def load_structures(args)
-	args.state.selection.building ||= :iron_mine
+	#args.state.selection.building ||= :iron_mine
 	args.state.blueprints.structures = {}
 	args.state.blueprints.structures[:iron_mine] =
 		{	name:		"Iron Ore Mine",

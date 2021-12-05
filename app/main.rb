@@ -127,21 +127,21 @@ def dialog_box_select_pane(args)
 	#args.outputs.borders << args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5) # DOWN
 
 	### Allocate building templates ###
-	args.state.building_list = Hash.new([])
-	building_list = args.state.building_list
-	args.state.blueprints.structures.each do |key, building|
-		next unless building[:available]
-		next unless building[:type] == args.state.selection.type
-		building_list[building[:type]] << key
+	args.state.building_list = Hash.new { |h, k| h[k] = Array.new } # Create a hash, the default value is an empty array
+	building_list = args.state.building_list # shorthand
+	args.state.blueprints.structures.each do |key, building| # Cycle through all building blueprints
+		#building_list[building[:type]] ||= []
+		next unless building[:available] # ignore any that aren't available for construction
+		building_list[building[:type]] << key # allocates the building key to the hash, keyed under the building type
 	end
 	
 	selected_list = building_list[args.state.selection.type]
 	
 	current = 0
 	max = selected_list.length
-	button_list.each do |button_space|
+	button_list.each do |button_space| # Allocating buttons to buildings, one at a time
 		current += 1
-		break if current > max
+		break if current > max # Stop allocating buttons once you run out of buildings
 		this_building = selected_list.shift
 		name = args.state.blueprints.structures[this_building][:name]
 		target = ("build_" + ((this_building).to_s)).to_sym

@@ -273,8 +273,8 @@ def load_structures(args)
 	args.state.blueprints.structures[:iron_mine] =
 		{	name:		"Iron Ore Mine",
 			cost:		{wood: 30, workers: 3},
-			production:	{ore: 1},
-			consumption: {wood: 3, tools: 1},
+			production:	{ore: 10},
+			consumption: {wood: 3, food: 3},
 			available: true,
 			type: :gather,
 			description: "Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore that requires refinement at a smelter."
@@ -282,7 +282,7 @@ def load_structures(args)
 	args.state.blueprints.structures[:smelter] =
 		{	name:		"Smelter",
 			cost:		{stone: 60, wood: 20, workers: 2},
-			production:	{iron: 1},
+			production:	{iron: 2},
 			consumption: {coal: 10, ore: 10},
 			available: true,
 			type: :process,
@@ -325,7 +325,24 @@ def load_structures(args)
 			type: :process,
 			description: "A furnace and anvil, where a craftsman hammers iron bars into wrought-iron tools."
 		}
-		
+	args.state.blueprints.structures[:farm] =
+		{	name:		"Farm",
+			cost:		{wood: 30},
+			production:	{food: 10},
+			consumption: {wood: 1},
+			available: true,
+			type: :gather,
+			description: "A farm that produces food."
+		}
+	args.state.blueprints.structures[:shelter] =
+		{	name:		"Shelter",
+			cost:		{wood: 100, stone: 10},
+			production:	{workers: 1},
+			consumption: {food: 50},
+			available: true,
+			type: :units,
+			description: "A safe, heated space for wanderers to rest and eat. Visitors join the colony if there is enough food"	
+		}
 		
 	args.state.buildings.ready = true
 	$gtk.notify!("Buildings loaded!")

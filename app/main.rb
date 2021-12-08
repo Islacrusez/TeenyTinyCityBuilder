@@ -160,7 +160,7 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 		dialog_box_select_pane(args)
 		return
 	end
-	
+	structure = args.state.blueprints.structures[building]
 	### Overhead ###
 	args.state.renderables.dialog = []
 	dialog = args.state.renderables.dialog
@@ -194,21 +194,24 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	
 	### Cost ###
 	cost_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 6.25, w: 3, h: 2.25), :cost_box, "Cost", args).merge(SPRITE)
-	cost = vertical_paired_list({row: 10.1, col: 7.75, drow: 0.4}, details[:cost], -2, args)
+	cost = vertical_paired_list({row: 10.1, col: 7.75, drow: 0.4}, details[:cost], -2, args) if structure.has_key?(:cost)
 	
 	### Production / Consumption ###
 	prod_ui = get_ui_box_from_layout(args.layout.rect(row: 9.5, col: 9.25, w: 8.5, h: 2.25), :prod_box, "Production and Consumption", args).merge(SPRITE)
-
-	prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
-	production_hash = details[:production]
-	production_text = horizontal_paired_list("Production: ", production_hash, UP, args)
-	production_label = {text: production_text, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}.merge(LABEL)
 	
-	con_label_box = args.layout.rect(row: 9.2, col: 9.5, w: 8.5, h: 2.25)
-	consumption_hash = details[:consumption]
-	consumption_text = horizontal_paired_list("Consumption: ", consumption_hash, DOWN, args)
-	consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(LABEL)
-
+	if structure.has_key?(:production)
+		prod_label_box = args.layout.rect(row: 9.8, col: 9.5, w: 8.5, h: 2.25)
+		production_hash = details[:production]
+		production_text = horizontal_paired_list("Production: ", production_hash, UP, args)
+		production_label = {text: production_text, x: prod_label_box[:x], y: prod_label_box[:center_y], size_enum: -1}.merge(LABEL)
+	end
+	if structure.has_key?(:consumption)
+		con_label_box = args.layout.rect(row: 9.2, col: 9.5, w: 8.5, h: 2.25)
+		consumption_hash = details[:consumption]
+		consumption_text = horizontal_paired_list("Consumption: ", consumption_hash, DOWN, args)
+		consumption_label = {text: consumption_text, x: con_label_box[:x], y: con_label_box[:center_y], size_enum: -1}.merge(LABEL)
+	end
+	
 	### Renderables ###
 	dialog << title
 	dialog << title_border
@@ -290,9 +293,7 @@ def load_structures(args)
 		}
 	args.state.blueprints.structures[:woodcutter] =
 		{	name:		"Woodcutter's Hut",
-			cost:		{wood: 0},
 			production:	{wood: 20},
-			consumption: {wood: 0},
 			available: true,
 			type: :gather,
 			description: "Shelter for woodcutter and tools, produces wood for construction"
@@ -348,52 +349,52 @@ def load_structures(args)
 	$gtk.notify!("Buildings loaded!")
 end
 
-def prepare_build_boxes(building, args) # key, args
-	box = args.render_target(building.to_s + "_ui_box")
-	box.height = 130
-	box.width = 420
+# def prepare_build_boxes(building, args) # key, args
+	# box = args.render_target(building.to_s + "_ui_box")
+	# box.height = 130
+	# box.width = 420
 	
-	details = args.state.blueprints.structures[building]
+	# details = args.state.blueprints.structures[building]
 	
-	box.sprites << make_ui_box(("build_" + building.to_s).to_sym, details[:name], 420, 130, args)
-	box.labels << textbox(details[:description], 10, 108, 390, size=-2, font="default")
-	box.lines << [10, 70, 410, 70]
-	box.sprites << make_ui_box(("cost_"+building.to_s).to_sym, ["Cost", -3, FONT], 150, 55, args).merge({x: 100, y: 10})
-	box.sprites << make_ui_box(("production_"+building.to_s), ["Production", -3, FONT], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
-	positions = [[105, 17 + 5 + 12 + 12],[105, 17 + 12],[],[]]
-	position = 0
-	details[:cost].each do |resource, value|
-		box.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
-		position += 1
-	end
+	# box.sprites << make_ui_box(("build_" + building.to_s).to_sym, details[:name], 420, 130, args)
+	# box.labels << textbox(details[:description], 10, 108, 390, size=-2, font="default")
+	# box.lines << [10, 70, 410, 70]
+	# box.sprites << make_ui_box(("cost_"+building.to_s).to_sym, ["Cost", -3, FONT], 150, 55, args).merge({x: 100, y: 10})
+	# box.sprites << make_ui_box(("production_"+building.to_s), ["Production", -3, FONT], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
+	# positions = [[105, 17 + 5 + 12 + 12],[105, 17 + 12],[],[]]
+	# position = 0
+	# details[:cost].each do |resource, value|
+		# box.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
+		# position += 1
+	# end
 	
-	positions = [[265, 17 + 5 + 12 + 12],[265, 17 + 12],[],[]]
-	position = 0
-	details[:production].each do |resource, value|
-		box.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
-		position += 1
-	end
-end
+	# positions = [[265, 17 + 5 + 12 + 12],[265, 17 + 12],[],[]]
+	# position = 0
+	# details[:production].each do |resource, value|
+		# box.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
+		# position += 1
+	# end
+# end
 
 def game_step(args)
 	return unless args.tick_count.mod(60) == 0
 	args.state.transactions.each do |transaction|
-		costs = transaction[:consumption]
+		costs = transaction[:consumption] if transaction.has_key?(:consumption)
 		gains = transaction[:production]
 		transaction_valid = true
 		costs.each do |material, value|
 			new_val = args.state.inventory[material] - value
 			transaction_valid = false if new_val.negative?
 			break unless transaction_valid
-		end
+		end if transaction.has_key?(:consumption)
 		if transaction_valid
 			costs.each do |material, value|
 				args.state.inventory[material] -= value
-			end
+			end if transaction.has_key?(:consumption)
 		
 			gains.each do |material, value|
 				args.state.inventory[material] += value
-			end
+			end if transaction.has_key?(:production)
 		end
 	end
 end
@@ -402,18 +403,21 @@ def build(building, args=$gtk.args)
 	structure = args.state.blueprints.structures[building]
 	structure[:cost].each do |material, price|
 		return if args.state.inventory[material] < price
-	end
+	end if structure.has_key?(:cost)
 	structure[:cost].each do |material, price|
 		args.state.inventory[material] -= price
-	end
+	end if structure.has_key?(:cost)
 	structure[:production].each do |material, gain|
 		args.state.production[material] += gain
-	end
+	end if structure.has_key?(:production)
 	structure[:consumption].each do |material, loss|
 		args.state.production[material] -= loss
-	end
+	end if structure.has_key?(:consumption)
 	
-	transaction = {consumption: structure[:consumption], production: structure[:production]}
+	#transaction = {consumption: structure[:consumption], production: structure[:production]}
+	transaction = {}
+	transaction[:consumption] = structure[:consumption] if structure.has_key?(:consumption)
+	transaction[:production] = structure[:production] if structure.has_key?(:production)
 	
 	args.state.transactions << transaction
 end

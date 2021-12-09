@@ -112,7 +112,8 @@ def dialog_box_select_pane(args)
 							text: details[:name], size_enum: 2,
 							vertical_alignment_enum: 1, alignment_enum: 1}.merge(LABEL)
 	
-#	borders = args.outputs.borders
+	
+	### Generate button locations ###
 	button_list = []
 	borders = button_list
 	
@@ -124,20 +125,9 @@ def dialog_box_select_pane(args)
 	borders << args.layout.rect(row: 9.75, col: 11, w: 4, h: 1)
 	borders << args.layout.rect(row: 10.75, col: 11, w: 4, h: 1)
 	
-	### Page Buttons ###
-	#args.outputs.borders << args.layout.rect(row: 8.75, col: 16.3, w: 1.2, h: 1.5) # UP
-	#args.outputs.borders << args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5) # DOWN
-	page_down = get_button_from_layout(args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5), 
-										DOWN, :page_plus, :build_page, 
-										:down_button, args) # DOWN
-	page_up = get_button_from_layout(args.layout.rect(row: 8.75, col: 16.3, w: 1.2, h: 1.5), 
-										UP, :page_minus, :build_page, 
-										:up_button, args) # UP
 
-	args.state.buttons << page_down
-	args.state.buttons << page_up
 
-	### Allocate building templates ###
+	### Get and assign building templates ###
 	args.state.building_list = Hash.new { |h, k| h[k] = Array.new } # Create a hash, the default value is an empty array
 	building_list = args.state.building_list # shorthand
 	args.state.blueprints.structures.each do |key, building| # Cycle through all building blueprints
@@ -152,6 +142,17 @@ def dialog_box_select_pane(args)
 	
 	current = 0
 	max = selected_list.length
+	
+	### Page Buttons ###
+	up_button = args.layout.rect(row: 8.75, col: 16.3, w: 1.2, h: 1.5) # UP
+	down_button = args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5) # DOWN
+	page_down = get_button_from_layout(down_button, DOWN, :page_plus, :build_page, :down_button, args) # DOWN
+	page_up = get_button_from_layout(up_button, UP, :page_minus, :build_page, :up_button, args) # UP
+
+	args.state.buttons << page_down if max > borders.length
+	args.state.buttons << page_up if page > 0
+	
+	### Assign buildings to buttons ###
 	button_list.each do |button_space| # Allocating buttons to buildings, one at a time
 		current += 1
 		break if current > max # Stop allocating buttons once you run out of buildings

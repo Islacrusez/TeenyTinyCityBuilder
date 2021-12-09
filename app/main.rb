@@ -58,7 +58,13 @@ def prepare_resource_text(args)
 		sign = SIGNS[args.state.production[resource].sign]
 		production = sign + " " + args.state.production[resource].abs.to_s
 		stock = args.state.inventory[resource]
-		stock = stock.idiv(1000).to_s + "k" if stock > 10000
+		case stock
+			when 10000000..10000000000 then stock = stock.idiv(1000000).to_s + "M"
+			when 10000..10000000 then stock = stock.idiv(1000).to_s + "k"
+			when 0..10000
+			else
+		end
+		#stock = stock.idiv(1000).to_s + "k" if stock > 10000
 		args.state.ui[resource] = "#{stock} (#{production})"
 	end
 end
@@ -137,7 +143,7 @@ def dialog_box_select_pane(args)
 	
 	args.state.selection.build_page ||= 0
 	page = args.state.selection.build_page
-	selected_list = building_list[args.state.selection.type].drop(6 * page) # drops elements to change page
+	selected_list = building_list[args.state.selection.type].drop(borders.length * page) # drops elements to change page
 	
 	current = 0
 	max = selected_list.length

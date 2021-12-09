@@ -135,7 +135,6 @@ def dialog_box_select_pane(args)
 		building_list[building[:type]] << key # allocates the building key to the hash, keyed under the building type
 	end
 	
-	#selected_list = building_list[args.state.selection.type] # this can be used to drop elements for the pages to work
 	args.state.selection.build_page ||= 0
 	page = args.state.selection.build_page
 	selected_list = building_list[args.state.selection.type].drop(6 * page) # drops elements to change page
@@ -396,33 +395,6 @@ def load_structures(args)
 	$gtk.notify!("Buildings loaded!")
 end
 
-# def prepare_build_boxes(building, args) # key, args
-	# box = args.render_target(building.to_s + "_ui_box")
-	# box.height = 130
-	# box.width = 420
-	
-	# details = args.state.blueprints.structures[building]
-	
-	# box.sprites << make_ui_box(("build_" + building.to_s).to_sym, details[:name], 420, 130, args)
-	# box.labels << textbox(details[:description], 10, 108, 390, size=-2, font="default")
-	# box.lines << [10, 70, 410, 70]
-	# box.sprites << make_ui_box(("cost_"+building.to_s).to_sym, ["Cost", -3, FONT], 150, 55, args).merge({x: 100, y: 10})
-	# box.sprites << make_ui_box(("production_"+building.to_s), ["Production", -3, FONT], 150, 55, args).merge({x: 100 +150 +10 , y: 10})
-	# positions = [[105, 17 + 5 + 12 + 12],[105, 17 + 12],[],[]]
-	# position = 0
-	# details[:cost].each do |resource, value|
-		# box.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
-		# position += 1
-	# end
-	
-	# positions = [[265, 17 + 5 + 12 + 12],[265, 17 + 12],[],[]]
-	# position = 0
-	# details[:production].each do |resource, value|
-		# box.labels << [*positions[position], "#{resource.capitalize}: #{value}", -3]
-		# position += 1
-	# end
-# end
-
 def game_step(args)
 	return unless args.tick_count.mod(60) == 0
 	args.state.transactions.each do |transaction|
@@ -461,7 +433,6 @@ def build(building, args=$gtk.args)
 		args.state.production[material] -= loss
 	end if structure.has_key?(:consumption)
 	
-	#transaction = {consumption: structure[:consumption], production: structure[:production]}
 	transaction = {}
 	transaction[:consumption] = structure[:consumption] if structure.has_key?(:consumption)
 	transaction[:production] = structure[:production] if structure.has_key?(:production)

@@ -91,6 +91,7 @@ end
 def select_type(to_select, args)
 	args.state.selection.type = to_select
 	args.state.selection.building = nil
+	args.state.selection.build_page = 0
 end
 
 def dialog_box_select_pane(args)
@@ -123,19 +124,31 @@ def dialog_box_select_pane(args)
 	borders << args.layout.rect(row: 9.75, col: 11, w: 4, h: 1)
 	borders << args.layout.rect(row: 10.75, col: 11, w: 4, h: 1)
 	
+	### Page Buttons ###
 	#args.outputs.borders << args.layout.rect(row: 8.75, col: 16.3, w: 1.2, h: 1.5) # UP
 	#args.outputs.borders << args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5) # DOWN
+	page_down = get_button_from_layout(args.layout.rect(row: 10.25, col: 16.3, w: 1.2, h: 1.5), 
+										DOWN, :page_plus, :build_page, 
+										:down_button, args) # DOWN
+	page_up = get_button_from_layout(args.layout.rect(row: 8.75, col: 16.3, w: 1.2, h: 1.5), 
+										UP, :page_minus, :build_page, 
+										:up_button, args) # UP
+
+	args.state.buttons << page_down
+	args.state.buttons << page_up
 
 	### Allocate building templates ###
 	args.state.building_list = Hash.new { |h, k| h[k] = Array.new } # Create a hash, the default value is an empty array
 	building_list = args.state.building_list # shorthand
 	args.state.blueprints.structures.each do |key, building| # Cycle through all building blueprints
-		#building_list[building[:type]] ||= []
 		next unless building[:available] # ignore any that aren't available for construction
 		building_list[building[:type]] << key # allocates the building key to the hash, keyed under the building type
 	end
 	
-	selected_list = building_list[args.state.selection.type]
+	#selected_list = building_list[args.state.selection.type] # this can be used to drop elements for the pages to work
+	args.state.selection.build_page ||= 0
+	page = args.state.selection.build_page
+	selected_list = building_list[args.state.selection.type].drop(6 * page) # drops elements to change page
 	
 	current = 0
 	max = selected_list.length
@@ -153,6 +166,14 @@ def dialog_box_select_pane(args)
 	args.state.renderables.dialog << dialog_border
 	args.state.renderables.dialog << dialog_ui_line
 	args.state.renderables.dialog << title
+end
+
+def page_plus(page, args=$gtk.args)
+	args.state.selection[page] += 1
+end
+
+def page_minus(page, args=$gtk.args)
+	args.state.selection[page] -= 1 if args.state.selection[page] - 1 >= 0
 end
 
 def dialog_box(building=args.state.selection.building, args=$gtk.args)
@@ -334,6 +355,31 @@ def load_structures(args)
 			available: true,
 			type: :gather,
 			description: "A farm that produces food."
+		}
+	args.state.blueprints.structures[:coal_mine] =
+		{	name:		"Coal Mine",
+			cost:		{wood: 30, workers: 6},
+			production:	{coal: 20},
+			consumption: {wood: 3, food: 3},
+			available: true,
+			type: :gather,
+			description: "A mine yielding coal"
+		}
+	args.state.blueprints.structures[:fishing_wharf] =
+		{	name:		"Fishing Wharf",
+			cost:		{wood: 30, workers: 10, stone: 100, boats: 2},
+			production:	{food: 20},
+			consumption: {wood: 3, rope: 3},
+			available: true,
+			type: :gather,
+			description: "A stone quay where fishing boats can be docked and unloaded"
+		}
+	args.state.blueprints.structures[:grain_farm] =
+		{	name:		"Grain Farm",
+			production:	{grain: 20},
+			available: true,
+			type: :gather,
+			description: "A farm that produces grain for animal feed and to grind into flour"
 		}
 	args.state.blueprints.structures[:shelter] =
 		{	name:		"Shelter",

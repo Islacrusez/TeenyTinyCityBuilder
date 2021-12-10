@@ -13,6 +13,7 @@
 
 def tick(args)
 	load_structures(args) unless args.state.buildings.ready
+	#load_objectives(args) unless args.state.objectives.ready
 	
 	args.state.buttons = []
 	args.state.production ||= Hash.new(0)
@@ -43,12 +44,6 @@ def tick(args)
 	render(args)
 	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
 	game_step(args)
-end
-
-def start(args=$gtk.args)
-	args.state.inventory[:workers] += 100
-	args.state.inventory[:tools] += 1000
-	"Gave 100 workers and 1000 tools"
 end
 
 def prepare_resource_text(args)
@@ -330,7 +325,6 @@ def load_structures(args)
 		{	name:		"Quarry",
 			cost:		{wood: 40},
 			production:	{stone: 10},
-			consumption: {wood: 0},
 			available: true,
 			type: :gather,
 			description: "Scaffolding across a rockface where usable stone is cut from the cliff"
@@ -357,7 +351,6 @@ def load_structures(args)
 		{	name:		"Farm",
 			cost:		{wood: 30},
 			production:	{food: 10},
-			consumption: {wood: 1},
 			available: true,
 			type: :gather,
 			description: "A farm that produces food."
@@ -405,44 +398,52 @@ def game_step(args)
 	return unless args.tick_count.mod(60) == 0
 	args.state.transactions.each do |transaction|
 		costs = transaction[:consumption] if transaction.has_key?(:consumption)
-		gains = transaction[:production]
+		gains = transaction[:production] if transaction.has_key?(:production)
 		transaction_valid = true
 		costs.each do |material, value|
-			new_val = args.state.inventory[material] - value
-			transaction_valid = false if new_val.negative?
+			transaction_valid = can_afford?(material, value)
 			break unless transaction_valid
 		end if transaction.has_key?(:consumption)
-		if transaction_valid
-			costs.each do |material, value|
-				args.state.inventory[material] -= value
-			end if transaction.has_key?(:consumption)
 		
-			gains.each do |material, value|
-				args.state.inventory[material] += value
-			end if transaction.has_key?(:production)
+		if transaction_valid
+			costs.each {|material, value| pay(material, value)} if transaction.has_key?(:consumption)
+			gains.each {|material, value| gain(material, value)} if transaction.has_key?(:production)
 		end
 	end
 end
 
 def build(building, args=$gtk.args)
 	structure = args.state.blueprints.structures[building]
-	structure[:cost].each do |material, price|
-		return if args.state.inventory[material] < price
-	end if structure.has_key?(:cost)
-	structure[:cost].each do |material, price|
-		args.state.inventory[material] -= price
-	end if structure.has_key?(:cost)
-	structure[:production].each do |material, gain|
-		args.state.production[material] += gain
-	end if structure.has_key?(:production)
-	structure[:consumption].each do |material, loss|
-		args.state.production[material] -= loss
-	end if structure.has_key?(:consumption)
 	
+	if structure.has_key?(:cost)
+		structure[:cost].each {|material, price| return unless can_afford?(material, price)}
+		structure[:cost].each {|material, price| pay(material, price)}
+	end
+	create_transaction(structure, args)
+end
+
+def can_afford?(item, amount, location=$gtk.args.state.inventory)
+	location[item] - amount >= 0
+end
+
+def pay(item, amount, location=$gtk.args.state.inventory)
+	location[item] -= amount
+end
+
+def gain(item, amount, location=$gtk.args.state.inventory)
+	location[item] += amount
+end
+
+def create_transaction(blueprint, args=$gtk.args)
 	transaction = {}
-	transaction[:consumption] = structure[:consumption] if structure.has_key?(:consumption)
-	transaction[:production] = structure[:production] if structure.has_key?(:production)
-	
+	if blueprint.has_key?(:consumption)
+		transaction[:consumption] = blueprint[:consumption]
+		transaction[:consumption].each{|material, val| args.state.production[material] -= val}
+	end
+	if blueprint.has_key?(:production)
+		transaction[:production] = blueprint[:production]
+		transaction[:production].each{|material, val| args.state.production[material] += val}
+	end
 	args.state.transactions << transaction
 end
 

@@ -195,8 +195,13 @@ def dialog_box(building=args.state.selection.building, args=$gtk.args)
 	dialog_ui_line = args.layout.rect(row: 8.5, col: 6.25, w: 11.5, h: 0).merge(BORDER)
 	
 	### Back and Build Buttons ###
+	buy_button = case args.state.blueprints.structures[building][:type]
+		when :units then :recruit
+		else :build
+	end
+	buy_label = buy_button.to_s.capitalize
 	back_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 6.5, w: 1, h: 1), LEFT, :select_building, nil, :back_button, args)
-	build_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1), "Build", :build, building, :build_button, args)
+	build_button = get_button_from_layout(args.layout.rect(row: 7.25, col: 15.5, w: 2, h: 1), buy_label, buy_button, building, :build_button, args)
 	
 	args.state.buttons = [build_button.merge(SPRITE), back_button.merge(SPRITE)]
 
@@ -382,14 +387,13 @@ def load_structures(args)
 			type: :gather,
 			description: "A farm that produces grain for animal feed and to grind into flour"
 		}
-	args.state.blueprints.structures[:shelter] =
-		{	name:		"Shelter",
-			cost:		{wood: 100, stone: 10},
-			production:	{workers: 1},
-			consumption: {food: 50},
+	args.state.blueprints.structures[:workers] =
+		{	name:		"Worker",
+			cost:		{food: 50},
+			consumption: {food: 1},
 			available: true,
 			type: :units,
-			description: "A safe, heated space for wanderers to rest and eat. Visitors join the colony if there is enough food"	
+			description: "A peasant, able to work the land and gather resources"	
 		}
 		
 	args.state.buildings.ready = true
@@ -422,6 +426,17 @@ def build(building, args=$gtk.args)
 		structure[:cost].each {|material, price| pay(material, price)}
 	end
 	create_transaction(structure, args)
+end
+
+def recruit(name, args=$gtk.args)
+	unit = args.state.blueprints.structures[name]
+	
+	if unit.has_key?(:cost)
+		unit[:cost].each {|material, price| return unless can_afford?(material, price)}
+		unit[:cost].each {|material, price| pay(material, price)}
+	end
+	create_transaction(unit, args)
+	gain(name, 1)
 end
 
 def can_afford?(item, amount, location=$gtk.args.state.inventory)

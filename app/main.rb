@@ -468,7 +468,7 @@ end
 def make_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)
 	clicked = (target.to_s+"_clicked").to_sym
 	unless args.state.rendered_buttons[target]
-		make_clicked_button(x, y, w, h, text, clicked, args)
+		make_clicked_button(w, h, text, clicked, args)
 		text_w, text_h = $gtk.calcstringbox(text)
 		args.render_target(target).height = h
 		args.render_target(target).width = w
@@ -489,7 +489,7 @@ def make_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)
 	{x: out_x, y: out_y, w: w, h: h, path: target, arguments: arguments, function: method(function)}
 end
 
-def make_clicked_button(x, y, w, h, text, target, args=$gtk.args)
+def make_clicked_button(w, h, text, target, args=$gtk.args)
 	text_w, text_h = $gtk.calcstringbox(text)
 	args.render_target(target).height = h
 	args.render_target(target).width = w

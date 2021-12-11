@@ -41,9 +41,8 @@ def tick(args)
 	prepare_resource_text(args)
 	box_M1(args)
 	box_M2(args)
-	
 	render(args)
-	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click
+	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click || args.state.mouse_clicked
 	game_step(args)
 end
 
@@ -254,6 +253,8 @@ end
 
 def render(args)
 	args.outputs.primitives << args.state.buttons
+	#args.outputs.primitives << args.state.clicked_button
+	
 	args.outputs.primitives << args.state.renderables.dialog
 	args.outputs.primitives << args.state.renderables.m1
 end
@@ -467,17 +468,26 @@ def create_transaction(blueprint, args=$gtk.args)
 end
 
 def make_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)
-	text_w, text_h = $gtk.calcstringbox(text)
-	args.render_target(target).height = h
-	args.render_target(target).width = w
-	out_x = x
-	out_y = y
-	x = 0
-	y = 0
-	args.render_target(target).borders << [x, y, w, h]
-	args.render_target(target).borders << [x, y+1, w-1, h-1]
-	args.render_target(target).borders << [x+2, y+2, w-4, h-4]
-	args.render_target(target).labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
+	clicked = (target.to_s+"_clicked").to_sym
+	unless args.state.rendered_buttons[target]
+		make_clicked_button(x, y, w, h, text, clicked, args)
+		text_w, text_h = $gtk.calcstringbox(text)
+		args.render_target(target).height = h
+		args.render_target(target).width = w
+		out_x = x
+		out_y = y
+		x = 0
+		y = 0
+		args.render_target(target).borders << [x, y, w, h]
+		args.render_target(target).borders << [x, y+1, w-1, h-1]
+		args.render_target(target).borders << [x+2, y+2, w-4, h-4]
+		args.render_target(target).labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
+	end
+	args.state.rendered_buttons ||= {}
+	args.state.rendered_buttons[target] = true
+	out_x ||= x
+	out_y ||= y
+	
 	{x: out_x, y: out_y, w: w, h: h, path: target, arguments: arguments, function: method(function)}
 end
 
@@ -491,15 +501,32 @@ def make_clicked_button(x, y, w, h, text, target, args=$gtk.args)
 	args.render_target(target).borders << [x+1, y, w-1, h-1]
 	args.render_target(target).borders << [x+2, y+2, w-4, h-4]
 	args.render_target(target).labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
-	{clicked_path: target}
+	#{clicked_path: target}
 end
 
 def check_mouse(mouse, args)
 	args.state.buttons.each do |button|
 		if mouse.inside_rect?(button)
-			button[:function].call(button[:arguments], args)
-			return # ends method, use break if further execution is desired
+			args.state.mouse_clicked = true
+			args.state.clicked_button = button
+			#button[:function].call(button[:arguments], args)
+			break # ends method, use break if further execution is desired
 		end
+	end unless args.state.mouse_clicked
+	on_button = false
+	if mouse.inside_rect?(args.state.clicked_button)
+		args.state.clicked_button[:path] = (args.state.clicked_button[:path].to_s+"_clicked").to_sym unless args.state.clicked_button_updated
+		args.state.clicked_button_updated = true
+		
+		puts args.state.clicked_button[:path]
+		args.outputs.sprites << args.state.clicked_button
+		on_button = true
+	end
+	if mouse.up
+		args.state.clicked_button[:function].call(args.state.clicked_button[:arguments], args) if on_button
+		args.state.mouse_clicked = false
+		args.state.clicked_button = nil
+		args.state.clicked_button_updated = nil
 	end
 end
 

@@ -15,7 +15,6 @@ require 'app/textbox.rb'
 
 def tick(args)
 	load_structures(args) unless args.state.buildings.ready
-	#load_objectives(args) unless args.state.objectives.ready
 	
 	args.state.buttons = []
 	args.state.production ||= Hash.new(0)
@@ -61,7 +60,6 @@ def prepare_resource_text(args)
 			when 0..10000
 			else
 		end
-		#stock = stock.idiv(1000).to_s + "k" if stock > 10000
 		args.state.ui[resource] = "#{stock} (#{production})"
 	end
 end
@@ -483,19 +481,17 @@ def make_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)
 	{x: out_x, y: out_y, w: w, h: h, path: target, arguments: arguments, function: method(function)}
 end
 
-def make_clicked_button(x, y, w, h, text, function, arguments, target, args=$gtk.args)
+def make_clicked_button(x, y, w, h, text, target, args=$gtk.args)
 	text_w, text_h = $gtk.calcstringbox(text)
 	args.render_target(target).height = h
 	args.render_target(target).width = w
-	out_x = x
-	out_y = y
 	x = 0
 	y = 0
 	args.render_target(target).borders << [x, y, w, h]
 	args.render_target(target).borders << [x+1, y, w-1, h-1]
 	args.render_target(target).borders << [x+2, y+2, w-4, h-4]
 	args.render_target(target).labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
-	{x: out_x, y: out_y, w: w, h: h, path: target, arguments: arguments, function: method(function)}
+	{clicked_path: target}
 end
 
 def check_mouse(mouse, args)

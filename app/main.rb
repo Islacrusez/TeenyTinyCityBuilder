@@ -253,8 +253,6 @@ end
 
 def render(args)
 	args.outputs.primitives << args.state.buttons
-	#args.outputs.primitives << args.state.clicked_button
-	
 	args.outputs.primitives << args.state.renderables.dialog
 	args.outputs.primitives << args.state.renderables.m1
 end
@@ -501,7 +499,6 @@ def make_clicked_button(x, y, w, h, text, target, args=$gtk.args)
 	args.render_target(target).borders << [x+1, y, w-1, h-1]
 	args.render_target(target).borders << [x+2, y+2, w-4, h-4]
 	args.render_target(target).labels << [x + (w - text_w) / 2, y + (h + text_h) / 2 - 1, text]
-	#{clicked_path: target}
 end
 
 def check_mouse(mouse, args)
@@ -510,17 +507,11 @@ def check_mouse(mouse, args)
 			args.state.mouse_clicked = true
 			args.state.clicked_button = button
 			args.state.clicked_button_key = button[:path]
-			#button[:function].call(button[:arguments], args)
-			break # ends method, use break if further execution is desired
+			break
 		end
 	end unless args.state.mouse_clicked
 	on_button = false
 	if mouse.inside_rect?(args.state.clicked_button)
-		#args.state.clicked_button[:path] = (args.state.clicked_button[:path].to_s+"_clicked").to_sym unless args.state.clicked_button_updated
-		#args.state.clicked_button_updated = true
-		
-		#puts args.state.clicked_button[:path]
-		#args.outputs.sprites << args.state.clicked_button
 		args.state.clicked_button_key = args.state.clicked_button[:path]
 		on_button = true
 	end
@@ -529,7 +520,6 @@ def check_mouse(mouse, args)
 		args.state.clicked_button[:function].call(args.state.clicked_button[:arguments], args) if on_button
 		args.state.mouse_clicked = false
 		args.state.clicked_button = nil
-		#args.state.clicked_button_updated = nil
 		args.state.clicked_button_key = nil
 	end
 end

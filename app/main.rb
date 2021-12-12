@@ -22,6 +22,8 @@ def tick(args)
 	args.state.transactions ||= []
 	args.state.inventory ||= Hash.new(0)
 	args.state.selection.type ||= :gather
+	
+	load_scenario(args) unless args.state.scenario.ready
 
 
 	dialog_box(args.state.selection.building, args)
@@ -44,6 +46,22 @@ def tick(args)
 	render(args)
 	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click || args.state.mouse_clicked
 	game_step(args)
+end
+
+def load_scenario(args)
+	args.state.objectives = {}
+	args.state.starting_inventory = {}
+	args.state.starting_transactions = []
+	
+	args.state.starting_inventory[:workers] = 20
+	args.state.starting_inventory[:food] = 500
+	
+	#args.state.starting_transactions << {consumption: {food: 20}}
+	
+	args.state.starting_inventory.each{|res, amt| gain(res, amt)}
+	args.state.starting_transactions.each{|transaction| create_transaction(transaction)}
+	
+	args.state.scenario.ready = true
 end
 
 def prepare_resource_text(args)

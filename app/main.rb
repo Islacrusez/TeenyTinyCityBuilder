@@ -51,18 +51,47 @@ def tick(args)
 end
 
 def scene_control(mode, args)
-	args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 6) # controls
-	args.outputs.borders << args.layout.rect(row: 6, col: 18, w: 6, h: 6) # chat
+	unless false #args.state.sidebar.locations
+		args.state.sidebar.locations = {}
+		bar = args.state.sidebar.locations
+		
+		bar[:split] = {
+						controls_border: args.layout.rect(row: 0, col: 18, w: 6, h: 7),
+						log_border: args.layout.rect(row: 7, col: 18, w: 6, h: 5),
+						blank: args.layout.rect(row: 0.5, col: 18.5, w: 5, h: 1),
+						overview: args.layout.rect(row: 1.5, col: 18.5, w: 5, h: 1),
+						city: args.layout.rect(row: 2.5, col: 18.5, w: 5, h: 1),
+						objectives: args.layout.rect(row: 3.5, col: 18.5, w: 5, h: 1),
+						trade:	args.layout.rect(row: 4.5, col: 18.5, w: 5, h: 1),
+						research: args.layout.rect(row: 5.5, col: 18.5, w: 5, h: 1),
+						change_mode: args.layout.rect(row: 6.5, col: 19.5, w: 3, h: 1)
+						}
+		bar[:log] = {
+						log_border: args.layout.rect(row: 0, col: 18, w: 6, h: 12)
+						}
+	end
+	
+	locations_to_use = {}
+	
+	locations_to_use = case mode
+		when :split then args.state.sidebar.locations[:split].values
+		when :log then args.state.sidebar.locations[:log].values
+	end
+	
+	args.outputs.borders << locations_to_use
+	
+	# args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 7) # controls
+	# args.outputs.borders << args.layout.rect(row: 7, col: 18, w: 6, h: 5) # log
 
-	#args.outputs.borders << args.layout.rect(row: 0.5, col: 18.5, w: 5, h: 1) # overview
-	args.outputs.borders << args.layout.rect(row: 0.5, col: 18.5, w: 2.5, h: 1) # overview
-	args.outputs.borders << args.layout.rect(row: 0.5, col: 21, w: 2.5, h: 1) # overview
-	args.outputs.borders << args.layout.rect(row: 1.5, col: 18.5, w: 5, h: 1) # overview
-	args.outputs.borders << args.layout.rect(row: 2.5, col: 18.5, w: 5, h: 1) # city
-	args.outputs.borders << args.layout.rect(row: 3.5, col: 18.5, w: 5, h: 1)
-	args.outputs.borders << args.layout.rect(row: 4.5, col: 18.5, w: 5, h: 1)
+	# args.outputs.borders << args.layout.rect(row: 0.5, col: 18.5, w: 2.5, h: 1) # set mode split
+	# args.outputs.borders << args.layout.rect(row: 0.5, col: 21, w: 2.5, h: 1) # set mode log
+	# args.outputs.borders << args.layout.rect(row: 1.5, col: 18.5, w: 5, h: 1) # overview
+	# args.outputs.borders << args.layout.rect(row: 2.5, col: 18.5, w: 5, h: 1) # city
+	# args.outputs.borders << args.layout.rect(row: 3.5, col: 18.5, w: 5, h: 1) # objectives
+	# args.outputs.borders << args.layout.rect(row: 4.5, col: 18.5, w: 5, h: 1) # trade
+	# args.outputs.borders << args.layout.rect(row: 5.5, col: 18.5, w: 5, h: 1) # research
 
-
+	
 end
 
 def load_scenario(args)
@@ -612,4 +641,8 @@ def make_ui_box(target, name, w, h, args)
 	args.outputs[target].height = h
 	args.outputs[target].width = w
 	{w: w, h: h, path: target}
+end
+
+def do_nothing(nil_argument = nil, args=$gtk.args)
+	# no-op
 end

@@ -91,20 +91,7 @@ def scene_control(mode, args)
 	end
 	
 	args.outputs.primitives << locations_to_use
-	args.state.buttons << get_button_from_layout(args.state.sidebar.locations[mode][:change_mode], "Toggle", :change_sidebar, mode, :toggle_button, args)
-	
-	# args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 7) # controls
-	# args.outputs.borders << args.layout.rect(row: 7, col: 18, w: 6, h: 5) # log
-
-	# args.outputs.borders << args.layout.rect(row: 0.5, col: 18.5, w: 2.5, h: 1) # set mode split
-	# args.outputs.borders << args.layout.rect(row: 0.5, col: 21, w: 2.5, h: 1) # set mode log
-	# args.outputs.borders << args.layout.rect(row: 1.5, col: 18.5, w: 5, h: 1) # overview
-	# args.outputs.borders << args.layout.rect(row: 2.5, col: 18.5, w: 5, h: 1) # city
-	# args.outputs.borders << args.layout.rect(row: 3.5, col: 18.5, w: 5, h: 1) # objectives
-	# args.outputs.borders << args.layout.rect(row: 4.5, col: 18.5, w: 5, h: 1) # trade
-	# args.outputs.borders << args.layout.rect(row: 5.5, col: 18.5, w: 5, h: 1) # research
-
-	
+	args.state.buttons << get_button_from_layout(args.state.sidebar.locations[mode][:change_mode], "Toggle Menu", :change_sidebar, mode, :toggle_button, args)
 end
 
 def load_scenario(args)
@@ -423,6 +410,7 @@ def load_structures(args)
 		}
 	args.state.blueprints.structures[:woodcutter] =
 		{	name:		"Woodcutter's Hut",
+			cost: {workers: 1},
 			production:	{wood: 20},
 			available: true,
 			type: :gather,
@@ -431,7 +419,7 @@ def load_structures(args)
 
 	args.state.blueprints.structures[:quarry] =
 		{	name:		"Quarry",
-			cost:		{wood: 40},
+			cost:		{wood: 40, workers: 10},
 			production:	{stone: 10},
 			available: true,
 			type: :gather,
@@ -448,7 +436,7 @@ def load_structures(args)
 		}
 	args.state.blueprints.structures[:blacksmith] =
 		{	name:		"Blacksmith",
-			cost:		{wood: 30, stone: 100, iron: 50},
+			cost:		{wood: 30, stone: 100, iron: 50, workers: 2},
 			production:	{tools: 5},
 			consumption: {iron: 10, coal: 20},
 			available: true,
@@ -457,7 +445,7 @@ def load_structures(args)
 		}
 	args.state.blueprints.structures[:farm] =
 		{	name:		"Farm",
-			cost:		{wood: 30},
+			cost:		{wood: 30, workers: 3},
 			production:	{food: 10},
 			available: true,
 			type: :gather,
@@ -476,7 +464,7 @@ def load_structures(args)
 		{	name:		"Fishing Wharf",
 			cost:		{wood: 30, workers: 10, stone: 100, boats: 2},
 			production:	{food: 20},
-			consumption: {wood: 3, rope: 3},
+			consumption: {wood: 3},
 			available: true,
 			type: :gather,
 			description: "A stone quay where fishing boats can be docked and unloaded"
@@ -490,19 +478,19 @@ def load_structures(args)
 		}
 	args.state.blueprints.structures[:wonder] =
 		{	name:		"Wonder of the World",
-			cost:		{stone: 10000, workers: 1000, wood: 100},
+			cost:		{stone: 10000, wood: 5000, Iron: 1000},
 			available: true,
 			type: :upgrade,
-			description: "A wondrous momument to your civilisation's eternal glory"
+			description: "A magnificent momument to your civilisation's eternal glory"
 		}
 	args.state.blueprints.structures[:shipyard] =
 		{	name:		"Shipyard",
-			cost:		{wood: 750, workers: 30, stone: 100},
-			production:	{ships: 1},
-			consumption: {wood: 1500, cotton: 500, sailors: 100},
+			cost:		{wood: 750, workers: 5, stone: 100},
+			production:	{boats: 1},
+			consumption: {wood: 100},
 			available: true,
 			type: :upgrade,
-			description: "A shoreside complex where huge seagoing vessels are constructed from wood"
+			description: "A shoreside complex where seagoing vessels are constructed from wood"
 		}
 	args.state.blueprints.structures[:workers] =
 		{	name:		"Worker",

@@ -74,14 +74,10 @@ def prepare_resource_text(args)
 	return if args.state.inventory.keys.length < 1
 	args.state.inventory.each do |resource, stock|
 		sign = SIGNS[args.state.production[resource].sign]
-		production = sign + " " + args.state.production[resource].abs.to_s
+		production = i_to_s(args.state.production[resource].abs)
+		production = sign + " " + production
 		stock = args.state.inventory[resource]
-		case stock
-			when 10000000..10000000000 then stock = stock.idiv(1000000).to_s + "M"
-			when 10000..10000000 then stock = stock.idiv(1000).to_s + "k"
-			when 0..10000
-			else
-		end
+		stock = i_to_s(stock)
 		args.state.ui[resource] = "#{stock} (#{production})"
 	end
 end
@@ -89,9 +85,7 @@ end
 def i_to_s(number)
 	suffix = ""
 	case number
-		
 		when 0..10000
-			break
 		when 10000..10000000
 			suffix = " k"
 			number = number.idiv(1000)
@@ -306,8 +300,9 @@ end
 def horizontal_paired_list(label, hash, symbol=nil, args=$gtk.args)
 	add_comma = false
 	hash.each do |res, val|
+		val = i_to_s(val) if val.is_a?(Integer)
 		label += "," if add_comma
-		label += res.to_s.capitalize.gsub("_", " ") + " " + val.to_s
+		label += res.to_s.capitalize.gsub("_", " ") + " " + val
 		label += symbol if symbol
 		add_comma = true
 	end
@@ -316,7 +311,11 @@ end
 
 def vertical_paired_list(layout, hash, size=0, args=$gtk.args)
 	left_array = hash.keys
-	right_array = hash.values
+	right_array = hash.values.map{|val| val.is_a?(Integer) ? i_to_s(val) : val }
+	#puts right_array
+	
+	#right_array.map!{|val| i_to_s(val) if val.is_a?(Integer) }
+	#left_array.map!{|val| i_to_s(val) if val.is_a?(Integer) }
 	
 	left_array.map!{|name| {text: name.to_s.capitalize.gsub("_", " ")+":", size_enum: size, alignment_enum: 2, primitive_marker: :label}}
 	right_array.map!{|val| {text: val.to_s, size_enum: size, alignment_enum: 0, primitive_marker: :label}}
@@ -429,6 +428,13 @@ def load_structures(args)
 			available: true,
 			type: :gather,
 			description: "A farm that produces grain for animal feed and to grind into flour"
+		}
+	args.state.blueprints.structures[:wonder] =
+		{	name:		"Wonder of the World",
+			cost:		{stone: 10000, workers: 1000, wood: 100},
+			available: true,
+			type: :upgrade,
+			description: "A wondrous momument to your civilisation's eternal glory"
 		}
 	args.state.blueprints.structures[:workers] =
 		{	name:		"Worker",

@@ -53,6 +53,11 @@ def load_scenario(args)
 	args.state.starting_inventory = {}
 	args.state.starting_transactions = []
 	
+	args.state.objective_types = {}
+	args.state.objective_types[:resource_delivery] = "Deliver some resources to complete this objective"
+	args.state.objective_types[:net_production] = "Produce a net gain of this many resources to complete this objective"
+	args.state.objective_types[:structure_built] = "Build this structure to complete this objective"
+	
 	args.state.starting_inventory[:workers] = 20
 	args.state.starting_inventory[:food] = 500
 	
@@ -79,6 +84,29 @@ def prepare_resource_text(args)
 		end
 		args.state.ui[resource] = "#{stock} (#{production})"
 	end
+end
+
+def i_to_s(number)
+	suffix = ""
+	case number
+		
+		when 0..10000
+			break
+		when 10000..10000000
+			suffix = " k"
+			number = number.idiv(1000)
+		else
+			suffix = " M"
+			number = number.idiv(1000000)
+	end
+	accumulator = ""
+	number = number.to_s.chars
+	while number.length > 3
+		3.times{accumulator << number.pop}
+		accumulator << ","
+	end
+	number.reverse.each{|digit| accumulator << digit}
+	accumulator.reverse+suffix
 end
 
 def box_M1(args)

@@ -10,6 +10,7 @@ require 'app/textbox.rb'
 	SPRITE = {primitive_marker: :sprite}
 	LINE = {primitive_marker: :line}
 	LABEL = {primitive_marker: :label}
+	SOLID = {primitive_marker: :solid}
 	
 	FONT = "default"
 
@@ -50,24 +51,35 @@ def tick(args)
 	game_step(args)
 end
 
+def change_sidebar(current_mode, args)
+	mode = case current_mode
+		when :split then :log
+		when :log then :split
+	end
+	args.state.selection.mode = mode
+end
+
 def scene_control(mode, args)
-	unless false #args.state.sidebar.locations
+	#mode = :log
+	unless args.state.sidebar.locations
 		args.state.sidebar.locations = {}
 		bar = args.state.sidebar.locations
 		
 		bar[:split] = {
-						controls_border: args.layout.rect(row: 0, col: 18, w: 6, h: 7),
-						log_border: args.layout.rect(row: 7, col: 18, w: 6, h: 5),
-						blank: args.layout.rect(row: 0.5, col: 18.5, w: 5, h: 1),
-						overview: args.layout.rect(row: 1.5, col: 18.5, w: 5, h: 1),
-						city: args.layout.rect(row: 2.5, col: 18.5, w: 5, h: 1),
-						objectives: args.layout.rect(row: 3.5, col: 18.5, w: 5, h: 1),
-						trade:	args.layout.rect(row: 4.5, col: 18.5, w: 5, h: 1),
-						research: args.layout.rect(row: 5.5, col: 18.5, w: 5, h: 1),
-						change_mode: args.layout.rect(row: 6.5, col: 19.5, w: 3, h: 1)
+						controls_border: args.layout.rect(row: 0, col: 18, w: 6, h: 7).merge(BORDER),
+						log_border: args.layout.rect(row: 7, col: 18, w: 6, h: 5).merge(BORDER),
+						blank: args.layout.rect(row: 0.5, col: 18.5, w: 5, h: 1).merge(BORDER),
+						overview: args.layout.rect(row: 1.5, col: 18.5, w: 5, h: 1).merge(BORDER),
+						city: args.layout.rect(row: 2.5, col: 18.5, w: 5, h: 1).merge(BORDER),
+						objectives: args.layout.rect(row: 3.5, col: 18.5, w: 5, h: 1).merge(BORDER),
+						trade:	args.layout.rect(row: 4.5, col: 18.5, w: 5, h: 1).merge(BORDER),
+						research: args.layout.rect(row: 5.5, col: 18.5, w: 5, h: 1).merge(BORDER),
+						change_mode_underlay: args.layout.rect(row: 6.5, col: 19.5, w: 3, h: 1).merge(SOLID).merge({rgb: $gtk.background_color}),
+						change_mode: args.layout.rect(row: 6.5, col: 19.5, w: 3, h: 1).merge(BORDER)
 						}
 		bar[:log] = {
-						log_border: args.layout.rect(row: 0, col: 18, w: 6, h: 12)
+						log_border: args.layout.rect(row: 1, col: 18, w: 6, h: 11).merge(BORDER),
+						change_mode: args.layout.rect(row: 0, col: 19.5, w: 3, h: 1).merge(BORDER)
 						}
 	end
 	
@@ -78,7 +90,8 @@ def scene_control(mode, args)
 		when :log then args.state.sidebar.locations[:log].values
 	end
 	
-	args.outputs.borders << locations_to_use
+	args.outputs.primitives << locations_to_use
+	args.state.buttons << get_button_from_layout(args.state.sidebar.locations[mode][:change_mode], "Toggle", :change_sidebar, mode, :toggle_button, args)
 	
 	# args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 7) # controls
 	# args.outputs.borders << args.layout.rect(row: 7, col: 18, w: 6, h: 5) # log

@@ -22,6 +22,7 @@ def tick(args)
 	args.state.transactions ||= []
 	args.state.inventory ||= Hash.new(0)
 	args.state.selection.type ||= :gather
+	args.state.selection.mode ||= :split
 	
 	load_scenario(args) unless args.state.scenario.ready
 
@@ -31,21 +32,37 @@ def tick(args)
 	#args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
 	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
 	#args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
-	args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 12) # Scene Control
+	#args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 12) # Scene Control
 	
 	## Scene control buttons
-	args.outputs.borders << args.layout.rect(row: 1, col: 19, w: 4, h: 2)
-	args.outputs.borders << args.layout.rect(row: 3, col: 19, w: 4, h: 2)
-	args.outputs.borders << args.layout.rect(row: 5, col: 19, w: 4, h: 2)
-	args.outputs.borders << args.layout.rect(row: 7, col: 19, w: 4, h: 2)
-	args.outputs.borders << args.layout.rect(row: 9, col: 19, w: 4, h: 2)
+	# args.outputs.borders << args.layout.rect(row: 1, col: 19, w: 4, h: 2)
+	# args.outputs.borders << args.layout.rect(row: 3, col: 19, w: 4, h: 2)
+	# args.outputs.borders << args.layout.rect(row: 5, col: 19, w: 4, h: 2)
+	# args.outputs.borders << args.layout.rect(row: 7, col: 19, w: 4, h: 2)
+	# args.outputs.borders << args.layout.rect(row: 9, col: 19, w: 4, h: 2)
 	
 	prepare_resource_text(args)
 	box_M1(args)
 	box_M2(args)
+	scene_control(args.state.selection.mode, args)
 	render(args)
 	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click || args.state.mouse_clicked
 	game_step(args)
+end
+
+def scene_control(mode, args)
+	args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 6) # controls
+	args.outputs.borders << args.layout.rect(row: 6, col: 18, w: 6, h: 6) # chat
+
+	#args.outputs.borders << args.layout.rect(row: 0.5, col: 18.5, w: 5, h: 1) # overview
+	args.outputs.borders << args.layout.rect(row: 0.5, col: 18.5, w: 2.5, h: 1) # overview
+	args.outputs.borders << args.layout.rect(row: 0.5, col: 21, w: 2.5, h: 1) # overview
+	args.outputs.borders << args.layout.rect(row: 1.5, col: 18.5, w: 5, h: 1) # overview
+	args.outputs.borders << args.layout.rect(row: 2.5, col: 18.5, w: 5, h: 1) # city
+	args.outputs.borders << args.layout.rect(row: 3.5, col: 18.5, w: 5, h: 1)
+	args.outputs.borders << args.layout.rect(row: 4.5, col: 18.5, w: 5, h: 1)
+
+
 end
 
 def load_scenario(args)
@@ -435,6 +452,15 @@ def load_structures(args)
 			available: true,
 			type: :upgrade,
 			description: "A wondrous momument to your civilisation's eternal glory"
+		}
+	args.state.blueprints.structures[:shipyard] =
+		{	name:		"Shipyard",
+			cost:		{wood: 750, workers: 30, stone: 100},
+			production:	{ships: 1},
+			consumption: {wood: 1500, cotton: 500, sailors: 100},
+			available: true,
+			type: :upgrade,
+			description: "A shoreside complex where huge seagoing vessels are constructed from wood"
 		}
 	args.state.blueprints.structures[:workers] =
 		{	name:		"Worker",

@@ -103,20 +103,30 @@ def add_log(log_item, args = $gtk.args)
 	puts args.state.log_ui.max_w
 	log_item = textbox(log_item, 0, 0, args.state.log_ui.max_w, -2, "default")
 	log_item.each{|line| args.state.event_log.unshift({text: line[:text], size_enum: line[:size_enum], font: line[:font]})}
+	args.state.last_log_lines = log_item.length
 end
 
 def display_log(location, list=$gtk.args.state.event_log, args=$gtk.args)
 	x, y = location[:x], location[:y]
 	offset_height = y
 	lines = []
+	hi_lines = args.state.last_log_lines
+	hi_h = 0
 	list.each do |line|
 		offset_y = $gtk.args.gtk.calcstringbox(line[:text], line[:size_enum], line[:font])[1]
 		item = {x: x + 5, y: offset_height + 2, text: line[:text], size_enum: line[:size_enum], font: line[:font], vertical_alignment_enum: 0}
+		
+		hi_h = offset_height - y + (offset_y / 2) if hi_lines == 0
 		offset_height += offset_y
-		lines << item
+		hi_lines -= 1
+		
+		lines << item.merge(LABEL)
+		
 		break if (item[:y] + 3 * offset_y) >= (location[:h] + location[:y])
 	end
-	args.outputs.labels << lines
+	args.outputs.primitives << {x: x, y: y, w: location[:w], h: hi_h, rgb: [220, 220, 100]}.merge(SOLID)
+	args.outputs.primitives << lines
+	#args.outputs.primitives << {x: x, y: y, }
 end
 
 def load_scenario(args)

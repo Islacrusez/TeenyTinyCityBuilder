@@ -24,6 +24,7 @@ def tick(args)
 	args.state.inventory ||= Hash.new(0)
 	args.state.selection.type ||= :gather
 	args.state.selection.mode ||= :split
+	args.state.event_log ||= []
 	
 	load_scenario(args) unless args.state.scenario.ready
 
@@ -41,7 +42,7 @@ def tick(args)
 	# args.outputs.borders << args.layout.rect(row: 5, col: 19, w: 4, h: 2)
 	# args.outputs.borders << args.layout.rect(row: 7, col: 19, w: 4, h: 2)
 	# args.outputs.borders << args.layout.rect(row: 9, col: 19, w: 4, h: 2)
-	
+		
 	prepare_resource_text(args)
 	box_M1(args)
 	box_M2(args)
@@ -90,8 +91,32 @@ def scene_control(mode, args)
 		when :log then args.state.sidebar.locations[:log].values
 	end
 	
+	display_log(args.state.sidebar.locations[mode][:log_border], args.state.event_log, args)
+	
 	args.outputs.primitives << locations_to_use
 	args.state.buttons << get_button_from_layout(args.state.sidebar.locations[mode][:change_mode], "Toggle Menu", :change_sidebar, mode, :toggle_button, args)
+end
+
+def add_log(log_item, args = $gtk.args)
+	args.state.event_log.unshift({text: "-----------------------------------------------", size_enum: -4, font: "Default"})
+	args.state.log_ui.max_w ||= args.layout.rect(row: 1, col: 18, w: 6, h: 11)[:w]
+	puts args.state.log_ui.max_w
+	log_item = textbox(log_item, 0, 0, args.state.log_ui.max_w, -2, "default")
+	log_item.each{|line| args.state.event_log.unshift({text: line[:text], size_enum: line[:size_enum], font: line[:font]})}
+end
+
+def display_log(location, list=$gtk.args.state.event_log, args=$gtk.args)
+	x, y = location[:x], location[:y]
+	offset_height = y
+	lines = []
+	list.each do |line|
+		offset_y = $gtk.args.gtk.calcstringbox(line[:text], line[:size_enum], line[:font])[1]
+		item = {x: x + 5, y: offset_height + 2, text: line[:text], size_enum: line[:size_enum], font: line[:font], vertical_alignment_enum: 0}
+		offset_height += offset_y
+		lines << item
+		break if (item[:y] + 3 * offset_y) >= (location[:h] + location[:y])
+	end
+	args.outputs.labels << lines
 end
 
 def load_scenario(args)

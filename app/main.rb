@@ -133,7 +133,6 @@ def display_log(location, list=$gtk.args.state.event_log, args=$gtk.args)
 	end
 	args.outputs.primitives << {x: x, y: y, w: location[:w], h: hi_h, rgb: [220, 220, 100]}.merge(SOLID)
 	args.outputs.primitives << lines
-	#args.outputs.primitives << {x: x, y: y, }
 end
 
 def load_scenario(args)
@@ -141,10 +140,11 @@ def load_scenario(args)
 	args.state.starting_inventory = {}
 	args.state.starting_transactions = []
 	
-	args.state.objective_types = {}
-	args.state.objective_types[:resource_delivery] = "Deliver some resources to complete this objective"
-	args.state.objective_types[:net_production] = "Produce a net gain of this many resources to complete this objective"
-	args.state.objective_types[:structure_built] = "Build this structure to complete this objective"
+	args.state.objectives = []
+
+	#args.state.objective_types[:resource_delivery] = "Deliver some resources to complete this objective"
+	#args.state.objective_types[:net_production] = "Produce a net gain of this many resources to complete this objective"
+	#args.state.objective_types[:structure_built] = "Build this structure to complete this objective"
 	
 	args.state.starting_inventory[:workers] = 20
 	args.state.starting_inventory[:food] = 500
@@ -155,6 +155,32 @@ def load_scenario(args)
 	args.state.starting_transactions.each{|transaction| create_transaction(transaction)}
 	
 	args.state.scenario.ready = true
+end
+
+def create_resource_objective(resource, amount, reward=nil, args=$gtk.args)
+	objective = {type: :resource_deliver, check_against: args.state.inventory, resource_type: resource, resource_amount: amount}
+	objective[:reward] = reward if reward
+	args.state.objectives << objective
+	add_log("The King requires a shipment of #{objective[:resource_amount]} #{objective[:resource_type]}!")
+end
+
+def objective_met?(objective, args=$gtk.args)
+	objective[:resource_amount] <= objective[:check_against][objective[:resource_type]]
+end
+
+def eval_objective(objective, args=$gtk.args)
+	if objective_met?(objective, args)
+		to_log = "You have met the objective to deliver #{objective[:resource_type]}"
+		to_log += " and have received #{objective[:reward][:amount]} #{objective[:reward][:resource]}" if objective.has_key?(:reward)
+		objective[:completed] = true
+		case objective[:type]
+			when :resource_deliver
+				pay(objective[:resource_type], objective[:resource_amount])
+				gain(objective[:reward][:resource], objective[:reward][:amount]) if objective.has_key?(:reward)
+			else raise "Invalid objective type"
+		end
+		add_log(to_log)
+	end
 end
 
 def prepare_resource_text(args)
@@ -562,6 +588,10 @@ def game_step(args)
 			costs.each {|material, value| pay(material, value)} if transaction.has_key?(:consumption)
 			gains.each {|material, value| gain(material, value)} if transaction.has_key?(:production)
 		end
+	end
+	args.state.objectives.each do |objective| 
+		next if objective[:completed]
+		eval_objective(objective) 
 	end
 end
 

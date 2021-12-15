@@ -26,6 +26,14 @@ def tick(args)
 	args.state.selection.mode ||= :split
 	args.state.event_log ||= []
 	
+	add_log("This is a test log, it's short") if args.inputs.keyboard.key_down.one
+	add_log("This is a different test log, it's two lines, without room to spare") if args.inputs.keyboard.key_down.two
+	add_log("This is a different test log, it's four lines and we can handle many lines more. There is a limit, but this ain't it") if args.inputs.keyboard.key_down.three
+	add_log("It's also worth noting that we have highlighting for the most recent message.") if args.inputs.keyboard.key_down.four
+	add_log("And it doesn't matter how many lines it is.") if args.inputs.keyboard.key_down.five
+	add_log("Oh, and this all works with the expanding box. Looksie!") if args.inputs.keyboard.key_down.six
+	add_log("Neat, huh?") if args.inputs.keyboard.key_down.seven
+	
 	load_scenario(args) unless args.state.scenario.ready
 
 
@@ -42,7 +50,7 @@ def tick(args)
 	# args.outputs.borders << args.layout.rect(row: 5, col: 19, w: 4, h: 2)
 	# args.outputs.borders << args.layout.rect(row: 7, col: 19, w: 4, h: 2)
 	# args.outputs.borders << args.layout.rect(row: 9, col: 19, w: 4, h: 2)
-		
+	
 	prepare_resource_text(args)
 	box_M1(args)
 	box_M2(args)
@@ -61,7 +69,6 @@ def change_sidebar(current_mode, args)
 end
 
 def scene_control(mode, args)
-	#mode = :log
 	unless args.state.sidebar.locations
 		args.state.sidebar.locations = {}
 		bar = args.state.sidebar.locations

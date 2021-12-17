@@ -481,6 +481,7 @@ def load_structures(args)
 			cost: {workers: 1},
 			production:	{wood: 20},
 			available: true,
+			unlocks: [:charcoal_pile],
 			type: :gather,
 			description: "Shelter for woodcutter and tools, produces wood for construction"
 		}
@@ -498,7 +499,7 @@ def load_structures(args)
 			cost:		{wood: 100},
 			production:	{coal: 2},
 			consumption: {wood: 20},
-			available: true,
+			available: false,
 			type: :process,
 			description: "A pile of wood covered in earth and sealed so as to burn down into charcoal. An inefficient way to gain coal-type fuel."
 		}
@@ -602,6 +603,12 @@ def build(building, args=$gtk.args)
 		structure[:cost].each {|material, price| return unless can_afford?(material, price)}
 		structure[:cost].each {|material, price| pay(material, price)}
 	end
+	if structure.has_key?(:unlocks)
+		structure[:unlocks].each do |to_unlock|
+			args.state.blueprints.structures[to_unlock][:available] = true
+		end
+	end
+	
 	create_transaction(structure, args)
 end
 

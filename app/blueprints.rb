@@ -15,6 +15,15 @@ def load_structures(args)
 			# description: "Description."
 		# }
 		
+	args.state.blueprints.structures[:workers] =
+		{	name:		"Worker",
+			cost:		{food: 50},
+			consumption: {food: 1},
+			available: true,
+			type: :units,
+			description: "A peasant, able to work the land and gather resources"	
+		}
+		
 	args.state.blueprints.structures[:woodcutter] =
 		{	name:		"Woodcutter's Hut",
 			cost:		{workers: 1},

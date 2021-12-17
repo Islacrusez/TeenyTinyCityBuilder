@@ -1,4 +1,7 @@
 require 'app/textbox.rb'
+require 'app/blueprints.rb'
+
+
 
 	UP = "▲"
 	DOWN = "▼"
@@ -458,123 +461,124 @@ def select_building(to_select, args=$gtk.args)
 	args.state.selection.building = to_select
 end
 
-def load_structures(args)
-	args.state.blueprints.structures = {}
-	args.state.blueprints.structures[:iron_mine] =
-		{	name:		"Iron Ore Mine",
-			cost:		{wood: 30, workers: 3},
-			production:	{ore: 10},
-			consumption: {wood: 3, food: 3},
-			available: true,
-			type: :gather,
-			description: "Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore that requires refinement at a smelter."
-		}
-	args.state.blueprints.structures[:smelter] =
-		{	name:		"Smelter",
-			cost:		{stone: 60, wood: 20, workers: 2},
-			production:	{iron: 2},
-			consumption: {coal: 10, ore: 10},
-			available: true,
-			type: :process,
-			description: "A tall chimney furnace able to smelt iron ore into somewhat usable metal"
-		}
-	args.state.blueprints.structures[:woodcutter] =
-		{	name:		"Woodcutter's Hut",
-			cost: {workers: 1},
-			production:	{wood: 20},
-			available: true,
-			unlocks: [:charcoal_pile],
-			type: :gather,
-			description: "Shelter for woodcutter and tools, produces wood for construction"
-		}
+# def load_structures(args)
+	# args.state.blueprints.structures = {}
+	# args.state.blueprints.structures[:iron_mine] =
+		# {	name:		"Iron Ore Mine",
+			# cost:		{wood: 30, workers: 3},
+			# production:	{ore: 10},
+			# consumption: {wood: 3, food: 3},
+			# available: true,
+			# type: :gather,
+			# description: "Mining tunnels deep into rock, reinforced by wooden beams. Produces iron ore that requires refinement at a smelter."
+		# }
+	# args.state.blueprints.structures[:smelter] =
+		# {	name:		"Smelter",
+			# cost:		{stone: 60, wood: 20, workers: 2},
+			# production:	{iron: 2},
+			# consumption: {coal: 10, ore: 10},
+			# available: true,
+			# type: :process,
+			# description: "A tall chimney furnace able to smelt iron ore into somewhat usable metal"
+		# }
+	# args.state.blueprints.structures[:woodcutter] =
+		# {	name:		"Woodcutter's Hut",
+			# cost: {workers: 1},
+			# production:	{wood: 20},
+			# available: true,
+			# unlocks: [:charcoal_pile],
+			# type: :gather,
+			# description: "Shelter for woodcutter and tools, produces wood for construction"
+		# }
 
-	args.state.blueprints.structures[:quarry] =
-		{	name:		"Quarry",
-			cost:		{wood: 40, workers: 10},
-			production:	{stone: 10},
-			available: true,
-			type: :gather,
-			description: "Scaffolding across a rockface where usable stone is cut from the cliff"
-		}
-	args.state.blueprints.structures[:charcoal_pile] =
-		{	name:		"Charcoal Pile",
-			cost:		{wood: 100},
-			production:	{coal: 2},
-			consumption: {wood: 20},
-			available: false,
-			type: :process,
-			description: "A pile of wood covered in earth and sealed so as to burn down into charcoal. An inefficient way to gain coal-type fuel."
-		}
-	args.state.blueprints.structures[:blacksmith] =
-		{	name:		"Blacksmith",
-			cost:		{wood: 30, stone: 100, iron: 50, workers: 2},
-			production:	{tools: 5},
-			consumption: {iron: 10, coal: 20},
-			available: true,
-			type: :process,
-			description: "A furnace and anvil, where a craftsman hammers iron bars into wrought-iron tools."
-		}
-	args.state.blueprints.structures[:farm] =
-		{	name:		"Farm",
-			cost:		{wood: 30, workers: 3},
-			production:	{food: 10},
-			available: true,
-			type: :gather,
-			description: "A farm that produces food."
-		}
-	args.state.blueprints.structures[:coal_mine] =
-		{	name:		"Coal Mine",
-			cost:		{wood: 30, workers: 6},
-			production:	{coal: 20},
-			consumption: {wood: 3, food: 3},
-			available: true,
-			type: :gather,
-			description: "A mine yielding coal"
-		}
-	args.state.blueprints.structures[:fishing_wharf] =
-		{	name:		"Fishing Wharf",
-			cost:		{wood: 30, workers: 10, stone: 100, boats: 2},
-			production:	{food: 20},
-			consumption: {wood: 3},
-			available: true,
-			type: :gather,
-			description: "A stone quay where fishing boats can be docked and unloaded"
-		}
-	args.state.blueprints.structures[:grain_farm] =
-		{	name:		"Grain Farm",
-			production:	{grain: 20},
-			available: true,
-			type: :gather,
-			description: "A farm that produces grain for animal feed and to grind into flour"
-		}
-	args.state.blueprints.structures[:wonder] =
-		{	name:		"Wonder of the World",
-			cost:		{stone: 10000, wood: 5000, Iron: 1000},
-			available: true,
-			type: :upgrade,
-			description: "A magnificent momument to your civilisation's eternal glory"
-		}
-	args.state.blueprints.structures[:shipyard] =
-		{	name:		"Shipyard",
-			cost:		{wood: 750, workers: 5, stone: 100},
-			production:	{boats: 1},
-			consumption: {wood: 100},
-			available: true,
-			type: :upgrade,
-			description: "A shoreside complex where seagoing vessels are constructed from wood"
-		}
-	args.state.blueprints.structures[:workers] =
-		{	name:		"Worker",
-			cost:		{food: 50},
-			consumption: {food: 1},
-			available: true,
-			type: :units,
-			description: "A peasant, able to work the land and gather resources"	
-		}
+	# args.state.blueprints.structures[:quarry] =
+		# {	name:		"Quarry",
+			# cost:		{wood: 40, workers: 10},
+			# production:	{stone: 10},
+			# available: true,
+			# type: :gather,
+			# description: "Scaffolding across a rockface where usable stone is cut from the cliff"
+		# }
+	# args.state.blueprints.structures[:charcoal_pile] =
+		# {	name:		"Charcoal Pile",
+			# cost:		{wood: 100},
+			# production:	{coal: 2},
+			# consumption: {wood: 20},
+			# available: false,
+			# type: :process,
+			# description: "A pile of wood covered in earth and sealed so as to burn down into charcoal. An inefficient way to gain coal-type fuel."
+		# }
+	# args.state.blueprints.structures[:blacksmith] =
+		# {	name:		"Blacksmith",
+			# cost:		{wood: 30, stone: 100, iron: 50, workers: 2},
+			# production:	{tools: 5},
+			# consumption: {iron: 10, coal: 20},
+			# available: true,
+			# type: :process,
+			# description: "A furnace and anvil, where a craftsman hammers iron bars into wrought-iron tools."
+		# }
+	# args.state.blueprints.structures[:farm] =
+		# {	name:		"Farm",
+			# cost:		{wood: 30, workers: 3},
+			# production:	{food: 10},
+			# available: true,
+			# type: :gather,
+			# description: "A farm that produces food."
+		# }
+	# args.state.blueprints.structures[:coal_mine] =
+		# {	name:		"Coal Mine",
+			# cost:		{wood: 30, workers: 6},
+			# production:	{coal: 20},
+			# consumption: {wood: 3, food: 3},
+			# available: true,
+			# type: :gather,
+			# description: "A mine yielding coal"
+		# }
+	# args.state.blueprints.structures[:fishing_wharf] =
+		# {	name:		"Fishing Wharf",
+			# cost:		{wood: 30, workers: 10, stone: 100, boats: 2},
+			# production:	{food: 20},
+			# consumption: {wood: 3},
+			# available: true,
+			# type: :gather,
+			# description: "A stone quay where fishing boats can be docked and unloaded"
+		# }
+	# args.state.blueprints.structures[:grain_farm] =
+		# {	name:		"Grain Farm",
+			# production:	{grain: 20},
+			# available: true,
+			# type: :gather,
+			# description: "A farm that produces grain for animal feed and to grind into flour"
+		# }
+	# args.state.blueprints.structures[:wonder] =
+		# {	name:		"Wonder of the World",
+			# cost:		{stone: 10000, wood: 5000, Iron: 1000},
+			# available: true,
+			# type: :upgrade,
+			# description: "A magnificent momument to your civilisation's eternal glory"
+		# }
+	# args.state.blueprints.structures[:shipyard] =
+		# {	name:		"Shipyard",
+			# cost:		{wood: 750, workers: 5, stone: 100},
+			# production:	{boats: 1},
+			# consumption: {wood: 100},
+			# available: true,
+			# type: :upgrade,
+			# description: "A shoreside complex where seagoing vessels are constructed from wood"
+		# }
+	# args.state.blueprints.structures[:workers] =
+		# {	name:		"Worker",
+			# cost:		{food: 50},
+			# consumption: {food: 1},
+			# available: true,
+			# type: :units,
+			# description: "A peasant, able to work the land and gather resources"	
+		# }
 		
-	args.state.buildings.ready = true
-	$gtk.notify!("Buildings loaded!")
-end
+	# args.state.buildings.ready = true
+	# $gtk.notify!("Buildings loaded!")
+# end
+
 
 def game_step(args)
 	return unless args.tick_count.mod(60) == 0

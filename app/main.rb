@@ -34,6 +34,8 @@ def tick(args)
 	add_log("Oh, and this all works with the expanding box. Looksie!") if args.inputs.keyboard.key_down.six
 	add_log("Neat, huh?") if args.inputs.keyboard.key_down.seven
 	
+	create_resource_objective(:wood, 200, {resource: :workers, amount: 20}, args) if args.inputs.keyboard.key_down.zero
+	
 	load_scenario(args) unless args.state.scenario.ready
 
 

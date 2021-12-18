@@ -225,7 +225,7 @@ end
 def box_M1(args)
 	ui_box = get_ui_box_from_layout(args.layout.rect(row: 0, col: 0, w: 6, h: 7), :m1_build_ui, "Inventory & Production", args)
 	
-	production = vertical_paired_list({row: 1, col: 2, drow: 0.5}, args.state.ui, size=0, args=$gtk.args)
+	production = vertical_paired_list({row: 0.75, col: 2, drow: 0.35}, args.state.ui, size=-1, args=$gtk.args)
 	args.state.renderables.m1 = []
 	args.state.renderables.m1 << ui_box
 	args.state.renderables.m1 << production

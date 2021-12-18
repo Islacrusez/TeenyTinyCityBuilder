@@ -136,7 +136,7 @@ def load_structures(args)
 			description: "Description."
 		}
 	args.state.blueprints.structures[:boat_builder] =
-		{	name:		"Boat Builder's Workshop",
+		{	name:		"Boatbuilder's Yard",
 			cost:		{wood: 200, stone: 200, workers: 2},
 			#production:	{material: amount},
 			#consumption: {material: amount},
@@ -276,7 +276,7 @@ def load_structures(args)
 		}
 		
 	args.state.blueprints.structures[:mill] =
-		{	name:		"Animal-powered mill",
+		{	name:		"Mill",
 			cost:		{wood: 40, food: 100, workers: 2},
 			production:	{flour: 30},
 			consumption: {food: 10, wheat: 20},
@@ -304,7 +304,7 @@ def load_structures(args)
 		}
 
 	args.state.blueprints.structures[:watermill] =
-		{	name:		"Water-powered mill",
+		{	name:		"Watermill",
 			cost:		{wood: 100, stone: 50, workers: 2},
 			production:	{flour: 30},
 			consumption: {wheat: 20},

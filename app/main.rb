@@ -19,7 +19,7 @@ require 'app/blueprints.rb'
 
 def tick(args)
 	load_structures(args) unless args.state.buildings.ready
-	define_scenarios(args) unless args.state.scenarios.ready
+
 	
 	args.state.buttons = []
 	args.state.production ||= Hash.new(0)
@@ -30,6 +30,7 @@ def tick(args)
 	args.state.selection.mode ||= :split
 	args.state.event_log ||= []
 	args.state.built_structures ||= Hash.new(0)
+	args.state.mouse_clicked ||= false
 	
 	add_log("This is a test log, it's short") if args.inputs.keyboard.key_down.one
 	add_log("This is a different test log, it's two lines, without room to spare") if args.inputs.keyboard.key_down.two
@@ -63,6 +64,7 @@ def tick(args)
 	box_M2(args)
 	scene_control(args.state.selection.mode, args)
 	render(args)
+	define_scenarios(args) unless args.state.scenarios.ready
 	check_mouse(args.inputs.mouse, args) if args.inputs.mouse.click || args.state.mouse_clicked
 	game_step(args)
 end
@@ -159,7 +161,10 @@ def define_scenarios(args)
 	events << new_event(:add_log, "To the left along the bottom of the screen is the main selection box. Within it, you should see the Woodcutter's Hut.", nil, 0)
 	events << new_event(:add_log, "Select the woodcutter from the list at the bottom of your screen. If you don't see a woodcutter, select 'Resource Gathering Buildings' from the list to the right.", nil, 2)
 	
+	# objective[:resource_amount] <= objective[:check_against][objective[:resource_type]]
 	
+	events << new_event(:add_log, "Once the woodcutter is selected, build it using the Build button.", nil, 1)
+	events << new_event(:add_log, "Woodcutter built, I think", {check_against: args.state.built_structures, resource_type: :woodcutter, resource_amount: 1}, 0)
 	
 	args.state.scenario.current_event = events.shift
 	args.state.scenario.running = true
@@ -191,6 +196,7 @@ def execute_event(event, args)
 		event[:delay] -= 1
 		return false
 	end
+	return false if event.has_key?(:trigger) && not(objective_met?(event[:trigger], args))
 	method(event[:method]).call(*event[:arguments], args)
 	true
 end
@@ -225,6 +231,7 @@ def create_resource_objective(resource, amount, reward=nil, args=$gtk.args)
 end
 
 def objective_met?(objective, args=$gtk.args)
+	return false unless objective[:check_against][objective[:resource_type]]
 	objective[:resource_amount] <= objective[:check_against][objective[:resource_type]]
 end
 

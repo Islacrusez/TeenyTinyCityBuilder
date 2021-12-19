@@ -19,6 +19,7 @@ require 'app/blueprints.rb'
 
 def tick(args)
 	load_structures(args) unless args.state.buildings.ready
+	define_scenarios(args) unless args.state.scenarios.ready
 	
 	args.state.buttons = []
 	args.state.production ||= Hash.new(0)
@@ -122,6 +123,7 @@ def display_log(location, list=$gtk.args.state.event_log, args=$gtk.args)
 	x, y = location[:x], location[:y]
 	offset_height = y
 	lines = []
+	### hi => highlight ###
 	hi_lines = args.state.last_log_lines
 	hi_h = 0
 	list.each do |line|
@@ -138,6 +140,42 @@ def display_log(location, list=$gtk.args.state.event_log, args=$gtk.args)
 	end
 	args.outputs.primitives << {x: x, y: y, w: location[:w], h: hi_h, rgb: [220, 220, 100]}.merge(SOLID)
 	args.outputs.primitives << lines
+end
+
+def define_scenarios(args)
+	args.state.scenarios.list = {}
+	args.state.scenarios.list[:tutorial] = {}
+	args.state.scenarios.list[:tutorial][:title] = "Tutorial Scenario"
+	args.state.scenarios.list[:tutorial][:description] = "A learning scenario intended to walk you through the core mechanics of the game, as well as demonstrate some of the capabilities of DPG's TeenyTinyCityBuilder engine"
+	args.state.scenarios.list[:tutorial][:events] = []
+	events = args.state.scenarios.list[:tutorial][:events]
+	#events << new_event()
+	events << new_event(:add_log, "Welcome to the tutorial", nil, 5)
+	
+	
+	
+	
+	args.state.scenarios.ready = true
+end
+
+def new_event(method, arguments, trigger=nil, delay=0)
+	
+	event = {}
+	
+	#event[:type] = type
+	#event[:description] = description
+	
+	event[:method] = method
+	event[:arguments] = arguments
+	
+	event[:trigger] = trigger if trigger
+	event[:delay] = delay
+	
+	event
+end
+
+def execute_event(event, args)
+	method(event[:method]).call(*event[:arguments], args)
 end
 
 def load_scenario(args)

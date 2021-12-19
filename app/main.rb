@@ -29,6 +29,7 @@ def tick(args)
 	args.state.selection.type ||= :gather
 	args.state.selection.mode ||= :split
 	args.state.event_log ||= []
+	args.state.built_structures ||= Hash.new(0)
 	
 	add_log("This is a test log, it's short") if args.inputs.keyboard.key_down.one
 	add_log("This is a different test log, it's two lines, without room to spare") if args.inputs.keyboard.key_down.two
@@ -150,11 +151,18 @@ def define_scenarios(args)
 	args.state.scenarios.list[:tutorial][:events] = []
 	events = args.state.scenarios.list[:tutorial][:events]
 	#events << new_event()
-	events << new_event(:add_log, "Welcome to the tutorial", nil, 5)
+	
+	events << new_event(:add_log, "Welcome to the tutorial", nil, 1)
+	events << new_event(:add_log, "This tutorial intends to show you the basics of TeenyTinyCityBuilder", nil, 1)
+	events << new_event(:add_log, "This area of the screen is called the Event Log. It contains important messages, including tutorial instructions and notifications for new or completed objectives.", nil, 2)
+	events << new_event(:add_log, "You'll notice the most recent message is highlighted.", nil, 3)
+	events << new_event(:add_log, "To the left along the bottom of the screen is the main selection box. Within it, you should see the Woodcutter's Hut.", nil, 0)
+	events << new_event(:add_log, "Select the woodcutter from the list at the bottom of your screen. If you don't see a woodcutter, select 'Resource Gathering Buildings' from the list to the right.", nil, 2)
 	
 	
 	
-	
+	args.state.scenario.current_event = events.shift
+	args.state.scenario.running = true
 	args.state.scenarios.ready = true
 end
 
@@ -174,8 +182,17 @@ def new_event(method, arguments, trigger=nil, delay=0)
 	event
 end
 
+def built?(building, args=$gtk.args)
+	args.state.build_structures[building]
+end
+
 def execute_event(event, args)
+	if event[:delay] > 0
+		event[:delay] -= 1
+		return false
+	end
 	method(event[:method]).call(*event[:arguments], args)
+	true
 end
 
 def load_scenario(args)
@@ -504,7 +521,8 @@ def select_building(to_select, args=$gtk.args)
 end
 
 def game_step(args)
-	return unless args.tick_count.mod(60) == 0
+	return unless args.state.scenario.running
+	return unless args.tick_count.mod(60) == 0	
 	args.state.transactions.each do |transaction|
 		costs = transaction[:consumption] if transaction.has_key?(:consumption)
 		gains = transaction[:production] if transaction.has_key?(:production)
@@ -523,6 +541,16 @@ def game_step(args)
 		next if objective[:completed]
 		eval_objective(objective) 
 	end
+	
+	if execute_event(args.state.scenario.current_event, args)
+		unless args.state.scenarios.list[:tutorial][:events].length > 0
+			add_log("Scenario complete!", args)
+			add_log("Game ending", args)
+			args.state.scenario.running = false
+		end
+		args.state.scenario.current_event = args.state.scenarios.list[:tutorial][:events].shift
+	end
+	
 end
 
 def build(building, args=$gtk.args)
@@ -538,6 +566,7 @@ def build(building, args=$gtk.args)
 		end
 	end
 	
+	args.state.built_structures[building] += 1
 	create_transaction(structure, args)
 end
 

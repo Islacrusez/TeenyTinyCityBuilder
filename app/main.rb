@@ -1,5 +1,6 @@
 require 'app/textbox.rb'
 require 'app/blueprints.rb'
+require 'app/scenarios.rb'
 
 
 
@@ -143,32 +144,6 @@ def display_log(location, list=$gtk.args.state.event_log, args=$gtk.args)
 	end
 	args.outputs.primitives << {x: x, y: y, w: location[:w], h: hi_h, rgb: [220, 220, 100]}.merge(SOLID)
 	args.outputs.primitives << lines
-end
-
-def define_scenarios(args)
-	args.state.scenarios.list = {}
-	args.state.scenarios.list[:tutorial] = {}
-	args.state.scenarios.list[:tutorial][:title] = "Tutorial Scenario"
-	args.state.scenarios.list[:tutorial][:description] = "A learning scenario intended to walk you through the core mechanics of the game, as well as demonstrate some of the capabilities of DPG's TeenyTinyCityBuilder engine"
-	args.state.scenarios.list[:tutorial][:events] = []
-	events = args.state.scenarios.list[:tutorial][:events]
-	#events << new_event()
-	
-	events << new_event(:add_log, "Welcome to the tutorial", nil, 1)
-	events << new_event(:add_log, "This tutorial intends to show you the basics of TeenyTinyCityBuilder", nil, 1)
-	events << new_event(:add_log, "This area of the screen is called the Event Log. It contains important messages, including tutorial instructions and notifications for new or completed objectives.", nil, 2)
-	events << new_event(:add_log, "You'll notice the most recent message is highlighted.", nil, 3)
-	events << new_event(:add_log, "To the left along the bottom of the screen is the main selection box. Within it, you should see the Woodcutter's Hut.", nil, 0)
-	events << new_event(:add_log, "Select the woodcutter from the list at the bottom of your screen. If you don't see a woodcutter, select 'Resource Gathering Buildings' from the list to the right.", nil, 2)
-	
-	# objective[:resource_amount] <= objective[:check_against][objective[:resource_type]]
-	
-	events << new_event(:add_log, "Once the woodcutter is selected, build it using the Build button.", nil, 1)
-	events << new_event(:add_log, "Woodcutter built, I think", {check_against: args.state.built_structures, resource_type: :woodcutter, resource_amount: 1}, 0)
-	
-	args.state.scenario.current_event = events.shift
-	args.state.scenario.running = true
-	args.state.scenarios.ready = true
 end
 
 def new_event(method, arguments, trigger=nil, delay=0)

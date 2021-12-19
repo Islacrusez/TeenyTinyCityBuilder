@@ -421,7 +421,7 @@ def horizontal_paired_list(label, hash, symbol=nil, args=$gtk.args)
 	hash.each do |res, val|
 		val = i_to_s(val) if val.is_a?(Integer)
 		label += "," if add_comma
-		label += res.to_s.capitalize.gsub("_", " ") + " " + val
+		label += sym_to_s(res) + " " + val
 		label += symbol if symbol
 		add_comma = true
 	end
@@ -436,7 +436,7 @@ def vertical_paired_list(layout, hash, size=0, args=$gtk.args)
 	#right_array.map!{|val| i_to_s(val) if val.is_a?(Integer) }
 	#left_array.map!{|val| i_to_s(val) if val.is_a?(Integer) }
 	
-	left_array.map!{|name| {text: name.to_s.capitalize.gsub("_", " ")+":", size_enum: size, alignment_enum: 2, primitive_marker: :label}}
+	left_array.map!{|name| {text: sym_to_s(name)+":", size_enum: size, alignment_enum: 2, primitive_marker: :label}}
 	right_array.map!{|val| {text: val.to_s, size_enum: size, alignment_enum: 0, primitive_marker: :label}}
 
 	layout[:drow] ||= 0.5
@@ -446,6 +446,10 @@ def vertical_paired_list(layout, hash, size=0, args=$gtk.args)
 	labels << args.layout.rect_group(layout.merge({group: right_array}))
 
 	labels
+end
+
+def sym_to_s(symbol)
+	symbol.capitalize.gsub("_", " ")
 end
 	
 def get_button_from_layout(layout, text, method, argument, target, args)

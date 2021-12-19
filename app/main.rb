@@ -188,7 +188,7 @@ def new_event(method, arguments, trigger=nil, delay=0)
 end
 
 def built?(building, args=$gtk.args)
-	args.state.build_structures[building]
+	args.state.built_structures[building]
 end
 
 def execute_event(event, args)

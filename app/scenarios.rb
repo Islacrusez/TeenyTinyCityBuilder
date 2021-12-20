@@ -16,10 +16,14 @@ def define_scenarios(args)
 	events << new_event(:add_log, "Select the woodcutter from the list at the bottom of your screen. If you don't see a woodcutter, select 'Resource Gathering Buildings' from the list to the right.", nil, 2)
 	
 	# objective[:resource_amount] <= objective[:check_against][objective[:resource_type]]
+	# trigger: ## {check_against: , resource_type: , resource_amount: }
 	
 	events << new_event(:add_log, "Once the woodcutter is selected, the main selection box will show you a description as well as the cost of the building. The cost is paid when the building is constructed. The consumption is consumed at the end of an ingame day, and any production is only produced if the consumption is satisfied.", nil, 3)
 	events << new_event(:add_log, "Build the woodcutter using the Build button.", nil, 6)
 	events << new_event(:add_log, "Excellent! The woodcutter has been constructed and you can now see the production ticking up in the lefthand window. This window also shows your current inventory. Note that the production shown here is the nominal production and does not reflect production impacted by unfulfilled consumption costs.", {check_against: args.state.built_structures, resource_type: :woodcutter, resource_amount: 1}, 0)
+	events << new_event(:add_log, "Now that we have some wood coming in, food should be the next priority. Build a forager's hut.", nil, 10)
+	events << new_event(:add_log, "As our city grows, food income will be more and more important. Mining in particular will consume food.", {check_against: args.state.built_structures, resource_type: :forager, resource_amount: 1}, 0)
+	
 	
 	args.state.scenario.current_event = events.shift
 	args.state.scenario.running = true

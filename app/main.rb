@@ -117,7 +117,6 @@ end
 def add_log(log_item, args = $gtk.args)
 	args.state.event_log.unshift({text: "-----------------------------------------------", size_enum: -4, font: "Default"})
 	args.state.log_ui.max_w ||= args.layout.rect(row: 1, col: 18, w: 6, h: 11)[:w]
-	puts args.state.log_ui.max_w
 	log_item = textbox(log_item, 0, 0, args.state.log_ui.max_w, -2, "default")
 	log_item.each{|line| args.state.event_log.unshift({text: line[:text], size_enum: line[:size_enum], font: line[:font]})}
 	args.state.last_log_lines = log_item.length

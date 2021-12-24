@@ -29,7 +29,9 @@ def define_scenarios(args)
 	args.state.scenarios.list[:default][:description] = "A null scenario to allow testing of other parts of the game"
 	args.state.scenarios.list[:default][:events] = []
 	events = args.state.scenarios.list[:default][:events]
-	
+
+	events << new_event(:add_log, "Empty scenario loaded.", nil, 1)
+	events << new_event(:add_log, "End condition: Wonder constructed.", nil, 1)
 	events << new_event(:add_log, "Don't know how you managed that, but that's the end of the scenario.", {check_against: args.state.built_structures, resource_type: :wonder, resource_amount: 1}, 0)
 	
 	events = args.state.scenarios.list[args.state.current_scenario][:events]

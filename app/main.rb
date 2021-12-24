@@ -32,6 +32,7 @@ def tick(args)
 	args.state.event_log ||= []
 	args.state.built_structures ||= Hash.new(0)
 	args.state.mouse_clicked ||= false
+	args.state.current_scenario ||= :default
 	
 	add_log("This is a test log, it's short") if args.inputs.keyboard.key_down.one
 	add_log("This is a different test log, it's two lines, without room to spare") if args.inputs.keyboard.key_down.two
@@ -523,13 +524,14 @@ def game_step(args)
 		eval_objective(objective) 
 	end
 	
+	current_scenario = args.state.current_scenario
 	if execute_event(args.state.scenario.current_event, args)
-		unless args.state.scenarios.list[:tutorial][:events].length > 0
+		unless args.state.scenarios.list[current_scenario][:events].length > 0
 			add_log("Scenario complete!", args)
 			add_log("Game ending", args)
 			args.state.scenario.running = false
 		end
-		args.state.scenario.current_event = args.state.scenarios.list[:tutorial][:events].shift
+		args.state.scenario.current_event = args.state.scenarios.list[current_scenario][:events].shift
 	end
 	
 end

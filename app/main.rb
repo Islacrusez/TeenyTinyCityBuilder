@@ -50,7 +50,7 @@ def tick(args)
 	dialog_box(args.state.selection.building, args)
 	
 	#args.outputs.borders << args.layout.rect(row: 0, col: 0, w: 6, h: 7) # M1
-	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
+	#args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
 	#args.outputs.borders << args.layout.rect(row: 7, col: 0, w: 6, h: 5) # M2
 	#args.outputs.borders << args.layout.rect(row: 0, col: 18, w: 6, h: 12) # Scene Control
 	
@@ -60,6 +60,21 @@ def tick(args)
 	# args.outputs.borders << args.layout.rect(row: 5, col: 19, w: 4, h: 2)
 	# args.outputs.borders << args.layout.rect(row: 7, col: 19, w: 4, h: 2)
 	# args.outputs.borders << args.layout.rect(row: 9, col: 19, w: 4, h: 2)
+	
+	## Districts (Viewport) ##
+	
+	#args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 12, h: 7) # Viewport
+	args.outputs.borders << args.layout.rect(row: 0, col: 12, w: 6, h: 7) # Right
+	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 6, h: 7) # Left
+	
+	args.outputs.borders << args.layout.rect(row: 0, col: 6, w: 6, h: 1)
+	args.outputs.borders << args.layout.rect(row: 1, col: 6, w: 6, h: 1)
+	args.outputs.borders << args.layout.rect(row: 2, col: 6, w: 6, h: 1)
+	args.outputs.borders << args.layout.rect(row: 3, col: 6, w: 6, h: 1)
+	args.outputs.borders << args.layout.rect(row: 4, col: 6, w: 6, h: 1)
+	args.outputs.borders << args.layout.rect(row: 5, col: 6, w: 6, h: 1)
+	args.outputs.borders << args.layout.rect(row: 6, col: 6, w: 6, h: 1)
+
 	
 	prepare_resource_text(args)
 	box_M1(args)

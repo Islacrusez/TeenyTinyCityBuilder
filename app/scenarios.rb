@@ -24,7 +24,15 @@ def define_scenarios(args)
 	events << new_event(:add_log, "Now that we have some wood coming in, food should be the next priority. Build a forager's hut.", nil, 10)
 	events << new_event(:add_log, "As our city grows, food income will be more and more important. Mining in particular will consume food.", {check_against: args.state.built_structures, resource_type: :forager, resource_amount: 1}, 0)
 	
+	args.state.scenarios.list[:default] = {}
+	args.state.scenarios.list[:default][:title] = "Default Scenario"
+	args.state.scenarios.list[:default][:description] = "A null scenario to allow testing of other parts of the game"
+	args.state.scenarios.list[:default][:events] = []
+	events = args.state.scenarios.list[:default][:events]
 	
+	events << new_event(:add_log, "Don't know how you managed that, but that's the end of the scenario.", {check_against: args.state.built_structures, resource_type: :wonder, resource_amount: 1}, 0)
+	
+	events = args.state.scenarios.list[args.state.current_scenario][:events]
 	args.state.scenario.current_event = events.shift
 	args.state.scenario.running = true
 	args.state.scenarios.ready = true
